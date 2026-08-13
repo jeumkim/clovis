@@ -1,0 +1,74 @@
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  max-width: 640px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+  color: #1a1a1a;
+}
+
+.landing {
+  text-align: center;
+}
+
+.landing__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.landing__button {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ---------- Clovis 통합 랜딩 ---------- */
+.landing-body {
+  --navy: #071c38;
+  --blue: #123e67;
+  --mint: #54dfbd;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  color: #eaf2f9;
+  background:
+    radial-gradient(circle at 90% 5%, rgba(35,151,143,.25), transparent 30%),
+    radial-gradient(circle at 8% 95%, rgba(27,77,124,.42), transparent 34%),
+    #06182f;
+}
+.control-landing { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 2rem; }
+.landing-nav { height: 72px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.12); }
+.landing-brand { display: flex; align-items: center; gap: .65rem; }
+.landing-brand > span { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--mint); border-radius: 8px; color: var(--mint); font-weight: 900; }
+.landing-brand strong, .landing-brand small { display: block; }
+.landing-brand strong { letter-spacing: .13em; font-size: .92rem; }
+.landing-brand small { color: #8fa5bc; letter-spacing: .09em; font-size: .57rem; }
+.landing-status { color: #8fa5bc; font-size: .66rem; letter-spacing: .1em; }
+.landing-status i { display: inline-block; width: 7px; height: 7px; margin-right: .45rem; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px rgba(84,223,189,.12); }
+.landing-hero { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; padding: 4rem 0 2.5rem; }
+.landing-eyebrow { color: var(--mint); font-size: .72rem; font-weight: 800; letter-spacing: .17em; }
+.landing-hero h1 { margin: .6rem 0 .85rem; font-size: clamp(2.1rem,4vw,3.4rem); line-height: 1.14; letter-spacing: -.04em; }
+.landing-hero h1 em { color: var(--mint); font-style: normal; }
+.landing-hero p { max-width: 700px; margin: 0; color: #aebed0; line-height: 1.65; }
+.landing-pipeline { display: flex; align-items: center; gap: .36rem; padding-bottom: .45rem; color: #b8c9d9; font-size: .7rem; white-space: nowrap; }
+.landing-pipeline span { padding: .35rem .5rem; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; background: rgba(255,255,255,.05); }
+.landing-pipeline b { color: var(--mint); }
+.landing-workspaces { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.workspace-card { position: relative; min-height: 355px; padding: 1.5rem; overflow: hidden; color: #eaf2f9; text-decoration: none; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; background: rgba(255,255,255,.055); transition: transform .18s ease,border-color .18s ease,background .18s ease; }
+.workspace-card:hover { transform: translateY(-4px); border-color: rgba(84,223,189,.55); background: rgba(255,255,255,.075); }
+.workspace-card--receive { background: linear-gradient(145deg,rgba(18,62,103,.68),rgba(9,35,64,.74)); }
+.workspace-card--send { background: linear-gradient(145deg,rgba(11,87,95,.62),rgba(9,35,64,.74)); }
+.workspace-card__number { position: absolute; right: 1.2rem; top: .75rem; color: rgba(255,255,255,.09); font-size: 4.8rem; font-weight: 900; }
+.workspace-card__icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 1rem; border-radius: 9px; color: #062a27; background: var(--mint); font-size: 1.25rem; font-weight: 900; }
+.workspace-card__kicker { color: var(--mint); font-size: .65rem; font-weight: 900; letter-spacing: .14em; }
+.workspace-card h2 { margin: .25rem 0 .5rem; font-size: 1.45rem; }
+.workspace-card p { max-width: 500px; margin: 0; color: #b8c8d7; font-size: .83rem; line-height: 1.52; }
+.workspace-card ul { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .8rem; margin: 1.25rem 0 1.35rem; padding: 0; list-style: none; color: #d5e1eb; font-size: .75rem; }
+.workspace-card li::before { content: "✓"; margin-right: .42rem; color: var(--mint); }
+.workspace-card > strong { color: #fff; font-size: .8rem; }
+.landing-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.4rem 0 0; color: #7189a1; font-size: .67rem; }
+@media(max-width:850px){.landing-hero{grid-template-columns:1fr;padding-top:2.5rem}.landing-pipeline{flex-wrap:wrap;white-space:normal}.landing-workspaces{grid-template-columns:1fr}.workspace-card{min-height:0}.landing-footer{flex-direction:column}.workspace-card ul{grid-template-columns:1fr}}
