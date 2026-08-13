@@ -810,6 +810,18 @@
     // 넣으면 실제 메일처럼 안 읽혀서, 인계(handoff) 시점에만 이미 화면에
     // 있는 구조화된 값(선박/위험도/변경사항/영향/권고 대응)으로 문장형
     // 본문을 새로 조립한다. backend는 건드리지 않는다.
+    //
+    // 문장 조립 시 지키는 규칙(버그 재발 방지):
+    // 1) "변경 없음"과 "변경이 확인되었으며"가 한 문장에서 동시에
+    //    나오지 않도록, 변경 유무에 따라 아예 다른 문장을 쓴다.
+    // 2) 영향(impacts) 항목을 이어붙일 때 "또한"을 2번 이상 쓰지 않는다.
+    //    항목이 3개 이상이면 문장으로 이어붙이지 않고 줄바꿈 목록으로 쓴다.
+    // 3) 각 조각을 합치기 전에 끝의 마침표류를 제거해서, 합친 뒤
+    //    마침표가 중복("..")되지 않게 한다.
+    function stripTrailingPunctuation(text) {
+      return (text || "").trim().replace(/[.!?]+$/, "");
+    }
+
     function buildSentenceKoreanReport({
       shipName,
       callSign,
@@ -823,30 +835,43 @@
         ? `${shipName}${callSign ? `(호출부호 ${callSign})` : ""}`
         : "해당 선박";
 
-      const changesText = (changedSummary && changedSummary.length)
-        ? changedSummary.join(", ")
-        : "확인 가능한 변경 필드가 없습니다.";
-
-      const impactText = (impacts && impacts.length)
-        ? impacts
-            .map((item) => `${item.area} 측면에서는 ${item.message}`)
-            .join(" 또한 ")
-        : "현재까지 파악된 추가 업무 영향은 없습니다.";
-
       const riskText = risk
         ? `${risk.label}(${risk.score}/100) 수준`
         : "평가 중";
 
+      const hasChanges = !!(changedSummary && changedSummary.length);
+      const changeSentence = hasChanges
+        ? `${shipLabel}에 대해 ${changedSummary.join(", ")} 변경이 확인되었으며, 현재 위험도는 ${riskText}입니다.`
+        : `${shipLabel}은(는) 현재 운영 DB 대비 확인된 변경 사항이 없으며, 현재 위험도는 ${riskText}입니다.`;
+
+      const impactItems = (impacts || [])
+        .map((item) => `${item.area} 측면에서는 ${stripTrailingPunctuation(item.message)}`)
+        .filter(Boolean);
+
+      let impactText;
+      if (impactItems.length === 0) {
+        impactText = "현재까지 파악된 추가 업무 영향은 없습니다.";
+      } else if (impactItems.length <= 2) {
+        // 1~2개는 자연스럽게 한 문장으로 (2개일 때만 "또한" 1회 사용)
+        impactText = impactItems.map((s) => `${s}.`).join(" 또한 ");
+        if (impactItems.length === 2) {
+          impactText = `${impactItems[0]}. 또한 ${impactItems[1]}.`;
+        }
+      } else {
+        // 3개 이상은 문장으로 이어붙이지 않고 항목별로 나열
+        impactText = impactItems.map((s) => `- ${s}.`).join("\n");
+      }
+
       const actionText = action
-        ? `${action.title}을(를) 권고드립니다. ${action.description || ""}`.trim()
+        ? `${action.title}을(를) 권고드립니다. ${stripTrailingPunctuation(action.description || "")}${action.description ? "." : ""}`.trim()
         : "";
 
       const paragraphs = [
         "담당자님, 안녕하세요.",
         "물류 운영팀입니다.",
         `${mailSubject ? `"${mailSubject}"` : "수신 메일"} 검토 결과를 다음과 같이 안내드립니다.`,
-        `${shipLabel}에 대해 ${changesText} 변경이 확인되었으며, 현재 위험도는 ${riskText}입니다.`,
-        `${impactText}.`,
+        changeSentence,
+        impactText,
         actionText,
         "승인해 주시면 운영 DB에 반영하고, 해외 파트너 회신 및 고객 납기 영향 공유까지 이어서 진행하겠습니다.",
         "확인 부탁드립니다.",
