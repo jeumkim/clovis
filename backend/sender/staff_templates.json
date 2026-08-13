@@ -1,0 +1,149 @@
+[
+  {
+    "id": "reply",
+    "label": "메일 회신",
+    "description": "받은 메일에 대해 확정된 사실만으로 격식 있는 회신 초안을 만듭니다.",
+    "primary": true,
+    "default": true,
+    "badge": "가장 많이 쓰는 기능",
+    "subject_prefix": "Re: ",
+    "intro_text": "받은 메일을 그대로 붙여넣으세요",
+    "sub_text": "문의와 요청을 정리해 격식 있는 회신 초안으로 바꿉니다",
+    "submit_label": "회신 초안 만들기",
+    "rules": "수신 원문은 참고용으로만 사용하고 본문에 그대로 반복하지 않습니다. 회신 목적에 맞춰 답변 내용을 자연스러운 문장으로 정리합니다.",
+    "fields": [
+      {
+        "id": "received_mail",
+        "label": "수신 메일 원문",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "받은 메일의 제목과 본문을 그대로 붙여넣으세요.\n예)\n제목: 커피 납품 일정 문의\n안녕하세요, 다음 주 납품 일정 확인 부탁드립니다.",
+        "rows": 8
+      },
+      {
+        "id": "reply_purpose",
+        "label": "회신 목적",
+        "type": "select",
+        "required": true,
+        "default": "자동 구성",
+        "options": ["자동 구성", "수신 확인", "요청 승인", "일정 안내", "자료 전달", "추가 문의", "정중한 거절"]
+      },
+      {
+        "id": "confirmed_content",
+        "label": "답변에 넣을 내용",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "확정된 사실만 짧게 입력하세요.\n예) 8월 14일까지 회신 가능",
+        "rows": 4
+      },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 홍길동 대리" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 물류1팀" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  },
+  {
+    "id": "report",
+    "label": "업무보고",
+    "description": "완료·진행·예정 업무와 확인·지원 요청 사항을 정리해 보고합니다.",
+    "subject_prefix": "[업무보고] ",
+    "rules": "완료/진행/예정 상태가 드러나도록 서술하고, 확인·지원 요청은 정중한 요청 문장으로 작성합니다.",
+    "at_least_one_of": ["completed_tasks", "in_progress_tasks", "planned_tasks", "request_content"],
+    "fields": [
+      { "id": "completed_tasks", "label": "완료 업무", "type": "textarea", "required": false, "placeholder": "한 줄에 하나씩 입력하세요.\n예) 8월 정산 보고서 작성", "rows": 3 },
+      { "id": "in_progress_tasks", "label": "진행 업무", "type": "textarea", "required": false, "placeholder": "예) 9월 물류비 검토", "rows": 3 },
+      { "id": "planned_tasks", "label": "예정 업무", "type": "textarea", "required": false, "placeholder": "예) 10월 계약 갱신 검토", "rows": 3 },
+      { "id": "request_content", "label": "확인·지원 요청 사항", "type": "textarea", "required": false, "placeholder": "예) 정산 자료 최종 확인", "rows": 3 },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 박부장" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 물류1팀" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  },
+  {
+    "id": "request",
+    "label": "협조 요청",
+    "description": "다른 부서·담당자에게 협조를 요청하는 메일을 작성합니다.",
+    "subject_prefix": "[협조 요청] ",
+    "rules": "요청 배경과 세부 내용을 하나의 자연스러운 문단으로 정리하고, 기한이 있으면 함께 안내합니다.",
+    "fields": [
+      { "id": "request_subject", "label": "요청 대상 업무", "type": "text", "required": true, "placeholder": "예) 9월 선적 스케줄 확정" },
+      { "id": "request_reason", "label": "요청 사유/배경", "type": "textarea", "required": false, "placeholder": "예) 화주사 확정 지연으로 일정 조율 필요", "rows": 3 },
+      { "id": "request_detail", "label": "요청 세부 내용", "type": "textarea", "required": true, "placeholder": "예) 9월 3주차 선적 가능 여부 확인", "rows": 3 },
+      { "id": "deadline", "label": "요청 기한", "type": "text", "required": false, "placeholder": "예) 8월 20일" },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 이과장" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 영업지원팀" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  },
+  {
+    "id": "schedule_change",
+    "label": "일정 변경 안내",
+    "description": "일정 변경 사항을 하나의 문장으로 정리해 안내합니다.",
+    "subject_prefix": "[일정 변경] ",
+    "rules": "대상 일정, 기존 일정, 변경 일정, 변경 사유를 불릿으로 나열하지 않고 하나의 문장으로 통합합니다.",
+    "fields": [
+      { "id": "schedule_subject", "label": "대상 일정", "type": "text", "required": true, "placeholder": "예) 커피 납품 일정" },
+      { "id": "old_schedule", "label": "기존 일정", "type": "text", "required": true, "placeholder": "예) 2026년 8월 12일" },
+      { "id": "new_schedule", "label": "변경 일정", "type": "text", "required": true, "placeholder": "예) 2026년 8월 14일" },
+      { "id": "reason", "label": "변경 사유", "type": "text", "required": false, "placeholder": "예) 배송 지연" },
+      { "id": "confirm_request", "label": "확인 요청 내용", "type": "text", "required": false, "placeholder": "예) 변경 일정 확인" },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 최대리" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 구매팀" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  },
+  {
+    "id": "meeting_summary",
+    "label": "회의 결과 공유",
+    "description": "회의에서 논의된 결정 사항과 후속 조치를 공유합니다.",
+    "subject_prefix": "[회의 결과] ",
+    "rules": "회의 주제와 결정 사항, 후속 조치를 자연스러운 문장으로 정리합니다.",
+    "fields": [
+      { "id": "meeting_topic", "label": "회의 안건", "type": "text", "required": true, "placeholder": "예) 9월 물류비 절감 방안" },
+      { "id": "meeting_date", "label": "회의 일시", "type": "text", "required": false, "placeholder": "예) 8월 12일 오전 10시" },
+      { "id": "decisions", "label": "결정 사항", "type": "textarea", "required": true, "placeholder": "한 줄에 하나씩 입력하세요.\n예) 3분기 계약 단가 재협상 진행", "rows": 3 },
+      { "id": "action_items", "label": "후속 조치 사항", "type": "textarea", "required": false, "placeholder": "예) 각 팀별 절감안 취합", "rows": 3 },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 회의 참석자" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 관련 부서" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  },
+  {
+    "id": "material_request",
+    "label": "자료 제출 요청",
+    "description": "필요한 자료의 제출을 요청하는 메일을 작성합니다.",
+    "subject_prefix": "[자료 제출 요청] ",
+    "rules": "요청 자료명과 목적, 기한, 제출 방법을 자연스러운 문장으로 안내합니다.",
+    "fields": [
+      { "id": "material_name", "label": "요청 자료명", "type": "text", "required": true, "placeholder": "예) 8월 화물 실적 자료" },
+      { "id": "purpose", "label": "요청 목적", "type": "textarea", "required": false, "placeholder": "예) 월간 실적 보고서 작성", "rows": 2 },
+      { "id": "deadline", "label": "제출 기한", "type": "text", "required": false, "placeholder": "예) 8월 18일" },
+      { "id": "submit_method", "label": "제출 방법", "type": "text", "required": false, "placeholder": "예) 이메일 회신" },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 각 팀 담당자" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 경영지원팀" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  },
+  {
+    "id": "issue_report",
+    "label": "이슈 보고",
+    "description": "발생한 이슈와 영향, 조치 사항을 보고합니다.",
+    "subject_prefix": "[이슈 보고] ",
+    "rules": "이슈 내용과 영향, 현재 조치 사항을 사실 그대로 전달합니다.",
+    "fields": [
+      { "id": "issue_title", "label": "이슈 제목", "type": "text", "required": true, "placeholder": "예) 부산항 하역 지연" },
+      { "id": "issue_detail", "label": "이슈 내용", "type": "textarea", "required": true, "placeholder": "예) 태풍 영향으로 하역 작업이 12시간 지연되었습니다", "rows": 3 },
+      { "id": "impact", "label": "영향 범위", "type": "textarea", "required": false, "placeholder": "예) 후속 선적 일정 조정 필요", "rows": 2 },
+      { "id": "action_taken", "label": "현재 조치 사항", "type": "textarea", "required": false, "placeholder": "예) 대체 하역 인력 배치", "rows": 2 },
+      { "id": "to", "label": "받는 사람", "type": "text", "required": false, "placeholder": "예) 팀장" },
+      { "id": "cc", "label": "참조", "type": "text", "required": false, "placeholder": "예) 관련 부서" },
+      { "id": "from_org", "label": "내 소속", "type": "text", "required": true, "placeholder": "예) 물류운영팀" },
+      { "id": "from_name", "label": "발신자", "type": "text", "required": true, "placeholder": "예) 김철수" }
+    ]
+  }
+]

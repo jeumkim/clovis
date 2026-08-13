@@ -1,0 +1,475 @@
+/* Sender(메일 작성) 화면 전용 스타일.
+   현대글로비스 CI의 짙은 남색을 주색으로 사용한다. 갈색/금색 포인트,
+   그라데이션, 둥근 카드, 채팅형 UI, 반짝이는 AI 배지는 사용하지 않는다. */
+
+:root {
+  --navy-900: #0a1f3c;
+  --navy-800: #0f2a52;
+  --navy-700: #163b6e;
+  --navy-600: #1f4e8c;
+  --navy-100: #e8edf5;
+  --navy-050: #f4f6fa;
+  --border: #d5dbe4;
+  --border-strong: #a9b4c4;
+  --text: #1a2233;
+  --text-muted: #5b6472;
+  --bg: #f7f8fa;
+  --panel-bg: #ffffff;
+  --ok: #1e6b3e;
+  --warn: #8a5a00;
+  --danger: #9c2b2b;
+  --radius: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Malgun Gothic", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--navy-700);
+}
+
+/* ---------- 헤더 ---------- */
+.app-header {
+  background: var(--navy-900);
+  color: #fff;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 3px solid var(--navy-600);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-header__brand img {
+  height: 28px;
+  display: block;
+}
+
+.app-header__brand-fallback {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-header__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+  padding-left: 1rem;
+}
+
+.app-header__back {
+  margin-left: auto;
+  color: #dbe4f2;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.app-header__back:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 상태 배너 ---------- */
+.status-banner {
+  margin: 0.75rem 1.5rem 0;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  background: var(--navy-050);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  border-radius: var(--radius);
+}
+
+.status-banner--error {
+  background: #fbecec;
+  border-color: #e3b6b6;
+  color: var(--danger);
+}
+
+/* ---------- 전체 레이아웃 ---------- */
+.app-shell {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 420px;
+  gap: 1rem;
+  padding: 1rem 1.5rem 2rem;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel__header {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--navy-900);
+}
+
+.panel__body {
+  padding: 0.9rem;
+}
+
+/* ---------- 업무 유형 목록 ---------- */
+.type-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.type-item {
+  text-align: left;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.87rem;
+  color: var(--text);
+}
+
+.type-item:hover {
+  border-color: var(--border-strong);
+}
+
+.type-item__label {
+  display: block;
+  font-weight: 500;
+}
+
+.type-item__desc {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.type-item.is-selected {
+  border-color: var(--navy-700);
+  background: var(--navy-100);
+}
+
+/* 대표 기능(메일 회신) 카드 */
+.type-item--primary {
+  background: var(--navy-900);
+  border-color: var(--navy-900);
+  color: #fff;
+  padding: 0.75rem 0.8rem;
+}
+
+.type-item--primary .type-item__desc {
+  color: #c7d3e6;
+}
+
+.type-item--primary.is-selected {
+  background: var(--navy-800);
+  border-color: var(--navy-600);
+}
+
+.type-item--primary:hover {
+  border-color: var(--navy-600);
+}
+
+.type-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--navy-900);
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 0.1rem 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+/* ---------- 업무 정보 입력 ---------- */
+.intro-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy-900);
+  margin: 0 0 0.15rem;
+}
+
+.sub-text {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 0.9rem;
+}
+
+.field {
+  margin-bottom: 0.85rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--text);
+}
+
+.field .required-mark {
+  color: var(--danger);
+  margin-left: 0.15rem;
+}
+
+.field input[type="text"],
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.87rem;
+  color: var(--text);
+  background: #fff;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 4.2em;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: 2px solid var(--navy-600);
+  outline-offset: -1px;
+  border-color: var(--navy-600);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.field-section-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: none;
+  margin: 1rem 0 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- 메일 작성 기준(접힘) ---------- */
+.criteria {
+  margin: 0.9rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--navy-050);
+}
+
+.criteria > summary {
+  cursor: pointer;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--navy-800);
+  list-style: none;
+}
+
+.criteria > summary::-webkit-details-marker {
+  display: none;
+}
+
+.criteria > summary::before {
+  content: "▸ ";
+}
+
+.criteria[open] > summary::before {
+  content: "▾ ";
+}
+
+.criteria__body {
+  padding: 0 0.9rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
+.criteria__missing {
+  margin-top: 0.4rem;
+  color: var(--danger);
+}
+
+/* ---------- 중요도 ---------- */
+.importance-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.9rem 0;
+  font-size: 0.82rem;
+}
+
+.importance-options {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.importance-options button {
+  border: none;
+  background: #fff;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border-left: 1px solid var(--border);
+}
+
+.importance-options button:first-child {
+  border-left: none;
+}
+
+.importance-options button.is-active {
+  background: var(--navy-800);
+  color: #fff;
+}
+
+.importance-reasons {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+/* ---------- 버튼 ---------- */
+.btn {
+  display: inline-block;
+  border: 1px solid var(--navy-800);
+  background: var(--navy-800);
+  color: #fff;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--navy-700);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--ghost {
+  background: #fff;
+  color: var(--navy-800);
+}
+
+.btn--ghost:hover {
+  background: var(--navy-050);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.draft-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.7rem 0;
+}
+
+/* ---------- 메일 초안 ---------- */
+.draft-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+.draft-mode {
+  display: inline-block;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.1rem 0.45rem;
+  margin-bottom: 0.6rem;
+}
+
+.draft-subject,
+.draft-body {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.65rem;
+  font-family: inherit;
+  font-size: 0.87rem;
+  color: var(--text);
+  background: #fff;
+}
+
+.draft-subject {
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+
+.draft-body {
+  min-height: 260px;
+  resize: vertical;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.copy-status {
+  font-size: 0.78rem;
+  color: var(--ok);
+  margin-left: 0.4rem;
+}
+
+/* ---------- 검증 결과 ---------- */
+.validation-list {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  font-size: 0.78rem;
+}
+
+.validation-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.15rem 0;
+  color: var(--text-muted);
+}
+
+.validation-list li.is-pass::before {
+  content: "✓";
+  color: var(--ok);
+}
+
+.validation-list li.is-fail::before {
+  content: "·";
+  color: var(--border-strong);
+}

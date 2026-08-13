@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>메일 작성</title>
+  <link rel="stylesheet" href="./app.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__brand">
+      <img
+        id="brand-logo"
+        src="./assets/hyundai-glovis-brand-guide.png"
+        alt="현대글로비스"
+        onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline'"
+      />
+      <span id="brand-fallback" class="app-header__brand-fallback" style="display: none;">현대글로비스</span>
+    </div>
+    <span class="app-header__title">메일 작성</span>
+    <a class="app-header__back" href="./index.html">처음으로</a>
+  </header>
+
+  <div id="ai-status-banner" class="status-banner" style="display: none;"></div>
+  <div id="error-banner" class="status-banner status-banner--error" style="display: none;"></div>
+
+  <main class="app-shell">
+    <!-- 1열: 업무 유형 -->
+    <section class="panel">
+      <div class="panel__header">업무 유형</div>
+      <div id="type-list" class="type-list"></div>
+    </section>
+
+    <!-- 2열: 업무 정보 -->
+    <section class="panel">
+      <div class="panel__header">업무 정보</div>
+      <div class="panel__body">
+        <p id="intro-text" class="intro-text"></p>
+        <p id="sub-text" class="sub-text"></p>
+
+        <form id="fields-form"></form>
+
+        <details id="criteria" class="criteria">
+          <summary>메일 작성 기준</summary>
+          <div id="criteria-body" class="criteria__body">항목을 입력하면 여기에서 확인할 수 있습니다.</div>
+        </details>
+
+        <div class="importance-row">
+          <span>중요 메일 구분:</span>
+          <span id="importance-badge" class="importance-reasons">자동 판단 대기 중</span>
+          <div class="importance-options" id="importance-options">
+            <button type="button" data-value="자동" class="is-active">자동</button>
+            <button type="button" data-value="중요">중요</button>
+            <button type="button" data-value="일반">일반</button>
+          </div>
+        </div>
+        <div id="importance-reasons" class="importance-reasons"></div>
+
+        <button id="submit-btn" type="button" class="btn btn--block" style="margin-top: 0.9rem;">
+          회신 초안 만들기
+        </button>
+      </div>
+    </section>
+
+    <!-- 3열: 메일 초안 -->
+    <section class="panel">
+      <div class="panel__header">메일 초안</div>
+      <div class="panel__body">
+        <div id="draft-empty" class="draft-empty">
+          왼쪽에서 업무 정보를 입력하고 버튼을 누르면 여기에 메일 초안이 표시됩니다.
+        </div>
+        <div id="draft-content" style="display: none;">
+          <span id="draft-mode" class="draft-mode"></span>
+          <input id="draft-subject" class="draft-subject" type="text" />
+          <textarea id="draft-body" class="draft-body"></textarea>
+          <div class="draft-actions">
+            <button id="btn-revert" type="button" class="btn btn--ghost">원문으로 되돌리기</button>
+            <button id="btn-copy" type="button" class="btn btn--ghost">메일 복사</button>
+            <span id="copy-status" class="copy-status"></span>
+          </div>
+          <ul id="validation-list" class="validation-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    let templates = [];
+    let selectedTemplateId = null;
+    // 업무 유형별로 입력값을 따로 보관해 전환해도 값이 사라지지 않게 한다.
+    const formState = {};
+    let lastGenerated = null; // { subject, body }
+    let currentImportanceOverride = "자동";
+    let composeRequestTimer = null;
+
+    function getTemplate(id) {
+      return templates.find((t) => t.id === id) || null;
+    }
+
+    function getValues(templateId) {
+      if (!formState[templateId]) formState[templateId] = {};
+      return formState[templateId];
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(path);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `요청에 실패했습니다 (${res.status})`);
+      return data;
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const err = new Error(data.error || `요청에 실패했습니다 (${res.status})`);
+        err.data = data;
+        throw err;
+      }
+      return data;
+    }
+
+    function showError(message) {
+      const el = $("#error-banner");
+      if (!message) {
+        el.style.display = "none";
+        el.textContent = "";
+        return;
+      }
+      el.style.display = "block";
+      el.textContent = message;
+    }
+
+    // ---------- 업무 유형 목록 ----------
+    function renderTypeList() {
+      const listEl = $("#type-list");
+      listEl.innerHTML = "";
+      templates.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "type-item" + (t.primary ? " type-item--primary" : "");
+        if (t.id === selectedTemplateId) btn.classList.add("is-selected");
+
+        const badge = t.badge ? `<span class="type-badge">${t.badge}</span><br/>` : "";
+        btn.innerHTML = `
+          ${badge}
+          <span class="type-item__label">${t.label}</span>
+          <span class="type-item__desc">${t.description || ""}</span>
+        `;
+        btn.addEventListener("click", () => selectTemplate(t.id));
+        listEl.appendChild(btn);
+      });
+    }
+
+    function selectTemplate(id) {
+      selectedTemplateId = id;
+      currentImportanceOverride = "자동";
+      lastGenerated = null;
+      renderTypeList();
+      renderForm();
+      renderDraftEmpty();
+      resetImportanceUI();
+      scheduleComposeRequestRefresh();
+    }
+
+    // ---------- 업무 정보 폼 ----------
+    function renderForm() {
+      const template = getTemplate(selectedTemplateId);
+      if (!template) return;
+
+      $("#intro-text").textContent = template.intro_text || template.description || "";
+      $("#sub-text").textContent = template.sub_text || "";
+      $("#submit-btn").textContent = template.submit_label || "메일 초안 만들기";
+
+      const values = getValues(template.id);
+      const form = $("#fields-form");
+      form.innerHTML = "";
+
+      const senderFieldIds = new Set(["to", "cc", "from_org", "from_name"]);
+      let senderSectionAdded = false;
+
+      template.fields.forEach((field) => {
+        if (senderFieldIds.has(field.id) && !senderSectionAdded) {
+          const label = document.createElement("div");
+          label.className = "field-section-label";
+          label.textContent = "보내는 사람 정보";
+          form.appendChild(label);
+          senderSectionAdded = true;
+        }
+
+        const wrap = document.createElement("div");
+        wrap.className = "field";
+
+        const labelEl = document.createElement("label");
+        labelEl.setAttribute("for", `field-${field.id}`);
+        labelEl.textContent = field.label;
+        if (field.required) {
+          const mark = document.createElement("span");
+          mark.className = "required-mark";
+          mark.textContent = "*";
+          labelEl.appendChild(mark);
+        }
+        wrap.appendChild(labelEl);
+
+        let inputEl;
+        if (field.type === "textarea") {
+          inputEl = document.createElement("textarea");
+          inputEl.rows = field.rows || 3;
+          inputEl.placeholder = field.placeholder || "";
+        } else if (field.type === "select") {
+          inputEl = document.createElement("select");
+          (field.options || []).forEach((opt) => {
+            const optionEl = document.createElement("option");
+            optionEl.value = opt;
+            optionEl.textContent = opt;
+            inputEl.appendChild(optionEl);
+          });
+        } else {
+          inputEl = document.createElement("input");
+          inputEl.type = "text";
+          inputEl.placeholder = field.placeholder || "";
+        }
+        inputEl.id = `field-${field.id}`;
+        inputEl.name = field.id;
+
+        const existing = values[field.id];
+        inputEl.value = existing !== undefined ? existing : field.default || "";
+        if (inputEl.value) values[field.id] = inputEl.value;
+
+        inputEl.addEventListener("input", () => {
+          values[field.id] = inputEl.value;
+          scheduleComposeRequestRefresh();
+        });
+        inputEl.addEventListener("change", () => {
+          values[field.id] = inputEl.value;
+          scheduleComposeRequestRefresh();
+        });
+
+        wrap.appendChild(inputEl);
+        form.appendChild(wrap);
+      });
+    }
+
+    // ---------- 메일 작성 기준(접힘) ----------
+    function scheduleComposeRequestRefresh() {
+      if (composeRequestTimer) clearTimeout(composeRequestTimer);
+      composeRequestTimer = setTimeout(refreshComposeRequest, 400);
+    }
+
+    async function refreshComposeRequest() {
+      const template = getTemplate(selectedTemplateId);
+      if (!template) return;
+      const values = getValues(template.id);
+      try {
+        const result = await apiPost("/api/sender/staff/compose-request", {
+          template_id: template.id,
+          values,
+        });
+        const bodyEl = $("#criteria-body");
+        let html = result.instructions || "";
+        if (result.missing_required && result.missing_required.length) {
+          html += `\n\n[아직 입력되지 않음] ${result.missing_required.join(", ")}`;
+        }
+        bodyEl.textContent = html;
+
+        // 자동 판단 결과를 '자동' 모드일 때 미리 보여준다.
+        if (currentImportanceOverride === "자동") {
+          renderImportance(result.importance);
+        }
+      } catch (err) {
+        // 작성 기준 미리보기는 보조 정보이므로 실패해도 화면을 막지 않는다.
+        console.warn("메일 작성 기준을 불러오지 못했습니다.", err);
+      }
+    }
+
+    // ---------- 중요도 ----------
+    function resetImportanceUI() {
+      currentImportanceOverride = "자동";
+      $$("#importance-options button").forEach((b) => {
+        b.classList.toggle("is-active", b.dataset.value === "자동");
+      });
+      $("#importance-badge").textContent = "자동 판단 대기 중";
+      $("#importance-reasons").textContent = "";
+    }
+
+    function renderImportance(importance) {
+      if (!importance) return;
+      $("#importance-badge").textContent = `${importance.level} (${importance.auto ? "자동 판단" : "직접 선택"})`;
+      $("#importance-reasons").textContent = importance.reasons && importance.reasons.length
+        ? `판단 근거: ${importance.reasons.join(", ")}`
+        : "판단 근거: 확인된 신호 없음";
+    }
+
+    $("#importance-options").addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      currentImportanceOverride = btn.dataset.value;
+      $$("#importance-options button").forEach((b) => b.classList.toggle("is-active", b === btn));
+      if (lastGenerated) {
+        // 이미 생성된 초안이 있으면 새 중요도로 다시 생성한다.
+        runGenerate();
+      }
+    });
+
+    // ---------- 메일 초안 생성 ----------
+    function renderDraftEmpty() {
+      $("#draft-empty").style.display = "block";
+      $("#draft-content").style.display = "none";
+      $("#draft-subject").value = "";
+      $("#draft-body").value = "";
+      $("#validation-list").innerHTML = "";
+      $("#copy-status").textContent = "";
+    }
+
+    function renderDraft(result) {
+      $("#draft-empty").style.display = "none";
+      $("#draft-content").style.display = "block";
+
+      const modeLabel = result.mode === "ai" ? "자동 작성 결과" : "표준 미리보기";
+      $("#draft-mode").textContent = modeLabel;
+
+      $("#draft-subject").value = result.subject;
+      $("#draft-body").value = result.body;
+      lastGenerated = { subject: result.subject, body: result.body };
+
+      renderImportance(result.importance);
+
+      const list = $("#validation-list");
+      list.innerHTML = "";
+      (result.validation || []).forEach((check) => {
+        const li = document.createElement("li");
+        li.className = check.passed ? "is-pass" : "is-fail";
+        li.textContent = check.name;
+        list.appendChild(li);
+      });
+
+      $("#copy-status").textContent = "";
+    }
+
+    async function runGenerate() {
+      const template = getTemplate(selectedTemplateId);
+      if (!template) return;
+      const values = getValues(template.id);
+
+      showError("");
+      const btn = $("#submit-btn");
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = "작성 중...";
+
+      try {
+        const result = await apiPost("/api/sender/staff/generate", {
+          template_id: template.id,
+          values,
+          importance_override: currentImportanceOverride === "자동" ? null : currentImportanceOverride,
+        });
+        renderDraft(result);
+      } catch (err) {
+        if (err.data && err.data.missing) {
+          showError(`다음 항목을 입력해주세요: ${err.data.missing.join(", ")}`);
+        } else {
+          showError(err.message || "메일 초안을 만들지 못했습니다.");
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
+    }
+
+    $("#submit-btn").addEventListener("click", runGenerate);
+
+    $("#btn-revert").addEventListener("click", () => {
+      if (!lastGenerated) return;
+      $("#draft-subject").value = lastGenerated.subject;
+      $("#draft-body").value = lastGenerated.body;
+      $("#copy-status").textContent = "원문으로 되돌렸습니다.";
+    });
+
+    $("#btn-copy").addEventListener("click", async () => {
+      const subject = $("#draft-subject").value;
+      const body = $("#draft-body").value;
+      const text = `제목: ${subject}\n\n${body}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        $("#copy-status").textContent = "복사되었습니다.";
+      } catch (err) {
+        $("#copy-status").textContent = "복사에 실패했습니다. 직접 선택해 복사해주세요.";
+      }
+    });
+
+    // ---------- 초기화 ----------
+    async function init() {
+      try {
+        const [templatesRes, aiStatusRes] = await Promise.all([
+          apiGet("/api/sender/staff/templates"),
+          apiGet("/api/sender/ai-status"),
+        ]);
+        templates = templatesRes.templates || [];
+
+        const banner = $("#ai-status-banner");
+        banner.style.display = "block";
+        banner.textContent = aiStatusRes.available
+          ? "자동 작성 연동이 설정되어 있습니다."
+          : "자동 작성 연동이 설정되지 않아 표준 미리보기로 메일 초안을 만듭니다.";
+
+        const defaultTemplate = templates.find((t) => t.default) || templates[0];
+        if (defaultTemplate) {
+          selectedTemplateId = defaultTemplate.id;
+          renderTypeList();
+          renderForm();
+          renderDraftEmpty();
+          resetImportanceUI();
+          scheduleComposeRequestRefresh();
+        }
+      } catch (err) {
+        showError(
+          "메일 작성 서버에 연결하지 못했습니다. backend/sender/server.py가 실행 중인지 확인해주세요. (" +
+            (err.message || "") +
+            ")"
+        );
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

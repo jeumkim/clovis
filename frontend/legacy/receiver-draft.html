@@ -1,0 +1,428 @@
+<!--
+  DEPRECATED (2026-08-13): 이 파일은 Receiver MVP 단계(모든 기능을 한
+  페이지에 담은 통합 초안)의 산출물이다. 정식 화면은 ../receive.html로
+  이전되었고, 이 파일이 호출하던 백엔드 API(/scenarios/{id}/extract,
+  /scenarios/{id}/compare, 단일 케이스 스키마)는 고도화 과정에서
+  /mail/process(다건 케이스 + 근거 문장 + 캘린더 + 우선순위 스키마)로
+  대체되어 더 이상 존재하지 않는다. 즉, 이 파일은 이제 실행해도 정상
+  동작하지 않는다. 과거 MVP 단계가 어떤 모습이었는지 참고용으로만
+  보존한다. 새 기능 작업은 ../receive.html에서 진행할 것.
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>메일 수신 처리 — 초안 (deprecated)</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    /* 이 페이지 전용 스타일. 정식 분리(receive.html) 시에는 공용
+       style.css로 옮기거나 이 페이지와 함께 정리될 예정입니다. */
+    body {
+      max-width: 880px;
+    }
+    .draft-banner {
+      background: #fff3cd;
+      border: 1px solid #d8b954;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    .step {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .step h2 {
+      margin-top: 0;
+      font-size: 1.05rem;
+    }
+    .step[data-disabled="true"] {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .scenario-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      background: #fafafa;
+    }
+    .scenario-item.selected {
+      border-color: #1a1a1a;
+      background: #eef2ff;
+    }
+    .scenario-item small {
+      color: #555;
+      display: block;
+    }
+    .mail-box {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      white-space: pre-wrap;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .mail-meta {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f5f5f5;
+    }
+    tr.changed td {
+      background: #fff6e5;
+    }
+    tr.changed td.new-value {
+      font-weight: 600;
+      color: #b45309;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      background: #eee;
+    }
+    .badge.mock {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    button {
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #1a1a1a;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button.secondary {
+      background: #fff;
+      color: #1a1a1a;
+    }
+    .update-confirm {
+      background: #f7f7f7;
+      border: 1px dashed #999;
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .update-result {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    .update-result.not-implemented {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .api-base-row {
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    .api-base-row input {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.4rem;
+      width: 220px;
+    }
+    .error-box {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      border-radius: 6px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <a href="../index.html">&larr; 처음으로</a>
+  <h1>메일 수신 처리 — 초안 (deprecated)</h1>
+
+  <div class="draft-banner">
+    ⚠️ <strong>이 페이지는 더 이상 동작하지 않습니다.</strong> Receiver MVP
+    단계의 통합 초안이며, 정식 화면은
+    <a href="../receive.html">../receive.html</a>로 이전되었습니다. 이
+    페이지가 호출하던 API(<code>/scenarios/{id}/extract</code>,
+    <code>/scenarios/{id}/compare</code>)는 고도화 과정에서
+    <code>/mail/process</code>로 대체되어 더 이상 존재하지 않습니다.
+    과거 MVP 단계 참고용으로만 보존합니다. 자세한 내용은
+    <a href="../README.md">frontend/README.md</a>를 참고하세요.
+  </div>
+
+  <div class="api-base-row">
+    Receiver API 주소:
+    <input id="api-base" type="text" value="http://localhost:8002" />
+    (backend/receiver를 <code>uvicorn main:app --reload --port 8002</code>로 먼저 실행하세요)
+  </div>
+
+  <!-- 1단계: 수신 메일 선택 -->
+  <section class="step" id="step-select">
+    <h2>1. 수신 메일 선택</h2>
+    <p>아래 시나리오는 "일정/화물량 변경 문의"로 이미 분류된 메일이라고 가정합니다.</p>
+    <div id="scenario-list" class="scenario-list">불러오는 중...</div>
+    <div id="mail-preview" style="margin-top: 1rem;"></div>
+  </section>
+
+  <!-- 2단계: AI 추출 -->
+  <section class="step" id="step-extract" data-disabled="true">
+    <h2>2. AI 기반 필드 추출</h2>
+    <p>
+      <span class="badge mock" id="extract-mode-badge">mock 모드</span>
+      OpenAI API 키가 비어 있는 동안에는 <code>mock_extract_email_fields</code>가
+      "실제로 추출됐다면 나왔을 값"을 대신 반환합니다.
+    </p>
+    <button id="btn-extract">추출하기</button>
+    <div id="extract-result" style="margin-top: 1rem;"></div>
+  </section>
+
+  <!-- 3단계: DB 대조 -->
+  <section class="step" id="step-compare" data-disabled="true">
+    <h2>3. 기존 DB와 대조</h2>
+    <p>선박ID/호출부호로 기존 DB 레코드를 조회하고, 필드별로 기존 값과 비교합니다.</p>
+    <button id="btn-compare">대조하기</button>
+    <div id="compare-result" style="margin-top: 1rem;"></div>
+  </section>
+
+  <!-- 4단계: 검토 + 5단계: 자동 업데이트 버튼(UI만) -->
+  <section class="step" id="step-update" data-disabled="true">
+    <h2>4. 검토 및 업데이트</h2>
+    <div class="update-confirm">
+      <p>변경 사항을 확인했습니다. 업데이트 하시겠습니까?</p>
+      <button id="btn-update">예, 업데이트</button>
+    </div>
+    <p style="font-size: 0.8rem; color: #777; margin-top: 0.5rem;">
+      ※ 이번 단계에서는 실제 DB 업데이트 로직이 구현되어 있지 않습니다.
+      버튼을 눌러도 반영되는 것은 없으며, 서버 콘솔 로그와 아래 결과
+      메시지로만 확인됩니다.
+    </p>
+    <div id="update-result"></div>
+  </section>
+
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    const apiBaseInput = $('#api-base');
+
+    let scenarios = [];
+    let selectedScenarioId = null;
+    let lastExtracted = null;
+
+    function apiBase() {
+      return apiBaseInput.value.replace(/\/$/, '');
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(apiBase() + path);
+      if (!res.ok) throw new Error(`GET ${path} 실패 (${res.status})`);
+      return res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(apiBase() + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      if (!res.ok) {
+        const detail = await res.text();
+        throw new Error(`POST ${path} 실패 (${res.status}): ${detail}`);
+      }
+      return res.json();
+    }
+
+    function showError(container, err) {
+      const box = document.createElement('div');
+      box.className = 'error-box';
+      box.textContent = err.message || String(err);
+      container.appendChild(box);
+    }
+
+    function setStepEnabled(stepId, enabled) {
+      $(stepId).dataset.disabled = enabled ? 'false' : 'true';
+    }
+
+    function resetDownstream(from) {
+      // 시나리오를 다시 선택했을 때 이후 단계 결과를 초기화한다.
+      const order = ['#step-extract', '#step-compare', '#step-update'];
+      const startIdx = order.indexOf(from);
+      order.forEach((id, idx) => {
+        if (idx >= startIdx) setStepEnabled(id, false);
+      });
+      $('#extract-result').innerHTML = '';
+      $('#compare-result').innerHTML = '';
+      $('#update-result').innerHTML = '';
+    }
+
+    async function loadScenarios() {
+      const listEl = $('#scenario-list');
+      try {
+        const data = await apiGet('/scenarios');
+        scenarios = data.scenarios;
+        listEl.innerHTML = '';
+        scenarios.forEach((s) => {
+          const item = document.createElement('div');
+          item.className = 'scenario-item';
+          item.dataset.id = s.id;
+          item.innerHTML = `<div><strong>${s.title}</strong><small>${s.summary || ''}</small></div>`;
+          item.addEventListener('click', () => selectScenario(s.id));
+          listEl.appendChild(item);
+        });
+      } catch (err) {
+        listEl.innerHTML = '';
+        showError(listEl, err);
+      }
+    }
+
+    async function selectScenario(id) {
+      selectedScenarioId = id;
+      resetDownstream('#step-extract');
+      document.querySelectorAll('.scenario-item').forEach((el) => {
+        el.classList.toggle('selected', el.dataset.id === id);
+      });
+
+      const previewEl = $('#mail-preview');
+      previewEl.innerHTML = '불러오는 중...';
+      try {
+        const scenario = await apiGet(`/scenarios/${id}`);
+        const mail = scenario.mail;
+        previewEl.innerHTML = `
+          <div class="mail-meta">
+            보낸사람: ${mail.from} · 받은시각: ${mail.received_at}
+          </div>
+          <div class="mail-meta"><strong>제목: ${mail.subject}</strong></div>
+          <div class="mail-box">${mail.body}</div>
+        `;
+        setStepEnabled('#step-extract', true);
+      } catch (err) {
+        previewEl.innerHTML = '';
+        showError(previewEl, err);
+      }
+    }
+
+    function renderExtracted(extracted) {
+      const rows = Object.entries(extracted)
+        .filter(([key]) => key !== 'meta')
+        .map(([key, value]) => `<tr><td>${key}</td><td>${value ?? ''}</td></tr>`)
+        .join('');
+      const mode = extracted.meta?.source === 'mock' ? 'mock (가짜 추출)' : 'openai (실제 추출)';
+      $('#extract-mode-badge').textContent = mode;
+      return `
+        <table>
+          <thead><tr><th>필드</th><th>추출 값</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p style="font-size: 0.8rem; color: #777;">${extracted.meta?.notes || ''}</p>
+      `;
+    }
+
+    async function extractScenario() {
+      const resultEl = $('#extract-result');
+      resultEl.innerHTML = '추출 중...';
+      try {
+        const data = await apiPost(`/scenarios/${selectedScenarioId}/extract`);
+        lastExtracted = data.extracted;
+        resultEl.innerHTML = renderExtracted(data.extracted);
+        setStepEnabled('#step-compare', true);
+      } catch (err) {
+        resultEl.innerHTML = '';
+        showError(resultEl, err);
+      }
+    }
+
+    function renderCompare(data) {
+      const rows = data.fields
+        .map(
+          (f) => `
+          <tr class="${f.changed ? 'changed' : ''}">
+            <td>${f.label}</td>
+            <td>${f.old_value ?? ''}</td>
+            <td class="new-value">${f.new_value ?? ''}</td>
+            <td>${f.changed ? '변경됨' : '동일'}</td>
+          </tr>`
+        )
+        .join('');
+      return `
+        <p>
+          대상 선박: <strong>${data.ship.ship_name}</strong>
+          (호출부호 ${data.ship.call_sign}, 선박ID ${data.ship.ship_id})
+          — 변경된 필드 ${data.changed_count}건
+        </p>
+        <table>
+          <thead><tr><th>필드</th><th>기존 값</th><th>변경 값</th><th>상태</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    async function compareScenario() {
+      const resultEl = $('#compare-result');
+      resultEl.innerHTML = '대조 중...';
+      try {
+        const data = await apiPost(`/scenarios/${selectedScenarioId}/compare`);
+        resultEl.innerHTML = renderCompare(data);
+        setStepEnabled('#step-update', true);
+      } catch (err) {
+        resultEl.innerHTML = '';
+        showError(resultEl, err);
+      }
+    }
+
+    async function updateScenario() {
+      const resultEl = $('#update-result');
+      resultEl.innerHTML = '';
+      try {
+        const data = await apiPost('/update', { scenario_id: selectedScenarioId });
+        console.log(
+          '[receiver-draft] 자동 업데이트 버튼 클릭됨. 실제 DB에는 아무 것도 반영되지 않았습니다.',
+          data
+        );
+        const box = document.createElement('div');
+        box.className = 'update-result not-implemented';
+        box.textContent = `${data.message} (status: ${data.status})`;
+        resultEl.appendChild(box);
+      } catch (err) {
+        showError(resultEl, err);
+      }
+    }
+
+    $('#btn-extract').addEventListener('click', extractScenario);
+    $('#btn-compare').addEventListener('click', compareScenario);
+    $('#btn-update').addEventListener('click', updateScenario);
+
+    loadScenarios();
+  </script>
+</body>
+</html>
