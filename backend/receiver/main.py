@@ -21,10 +21,12 @@ if _THIS_DIR not in sys.path:
 
 import columns
 import db
+import decision_support
 import extraction
 import mail_source
 import priority as priority_module
 import review
+import secret_manager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("clovis.receiver")
@@ -73,6 +75,12 @@ class DecisionRequest(BaseModel):
     reason: Optional[str] = None
 
 
+class ResponsePackageRequest(BaseModel):
+    card: dict
+    selected_action_id: Optional[str] = None
+    mail_subject: Optional[str] = None
+
+
 def _load_scenario(scenario_id: str) -> dict:
     path = SCENARIOS_DIR / f"{scenario_id}.json"
     if not path.exists():
@@ -103,6 +111,23 @@ def _list_scenarios() -> list[dict]:
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "receiver"}
+
+
+@app.get("/api/receiver/ai-status")
+def ai_status() -> dict:
+    configured = secret_manager.is_ai_configured()
+    config = secret_manager.get_openai_config()
+    return {
+        "configured": configured,
+        "model": config["model"] if configured else None,
+        "capabilities": {
+            "mail_extraction": configured,
+            "risk_analysis": configured,
+            "action_recommendation": configured,
+            "bilingual_communication": configured,
+        },
+        "fallback": "explainable-demo" if not configured else None,
+    }
 
 
 @app.get("/columns")
@@ -228,6 +253,16 @@ def api_reject(payload: DecisionRequest) -> dict:
     return {"status": "rejected", "history": history}
 
 
+@app.post("/api/receiver/response-package")
+def api_response_package(payload: ResponsePackageRequest) -> dict:
+    """검토된 변경 건 + 담당자 선택 대응안 -> 영문 회신/한국어 보고."""
+    return decision_support.build_response_package(
+        payload.card,
+        selected_action_id=payload.selected_action_id,
+        mail_subject=payload.mail_subject,
+    )
+
+
 @app.get("/api/receiver/dashboard")
 def api_dashboard(sort: str = "priority") -> dict:
     """준비된 mock 시나리오(오늘의 수신함 대용)를 처리해, 아직 승인/반려
@@ -242,7 +277,7 @@ def api_dashboard(sort: str = "priority") -> dict:
         for case in result["cases"]:
             if db.get_latest_decision(case["case_id"]) is not None:
                 continue  # 이미 승인/반려된 건은 대기 목록에서 제외
-            card = review.build_review_card(case)
+            card = review.build_review_card(case, prefer_ai=False)
             card["scenario_id"] = scenario["id"]
             card["scenario_title"] = scenario["title"]
             all_cards.append(card)

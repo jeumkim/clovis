@@ -9,12 +9,13 @@ from datetime import datetime
 
 import calendar_view
 import db
+import decision_support
 import highlight
 import priority
 import validation
 
 
-def build_review_card(case, today=None):
+def build_review_card(case, today=None, prefer_ai=True):
     today = today or datetime.now()
     fields = case["fields"]
 
@@ -85,7 +86,7 @@ def build_review_card(case, today=None):
         "call_sign": (existing or {}).get("call_sign") or fields.get("call_sign", {}).get("value"),
     }
 
-    return {
+    card = {
         "case_id": case["case_id"],
         "ship": ship_identity,
         "db_missing": db_missing,
@@ -96,3 +97,5 @@ def build_review_card(case, today=None):
         "priority": priority_result,
         "update_enabled": not db_missing,
     }
+    card["decision_support"] = decision_support.build_decision_support(card, allow_ai=prefer_ai)
+    return card

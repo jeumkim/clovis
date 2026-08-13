@@ -70,6 +70,27 @@ class OpenAIError(Exception):
 
 def call_structured_extraction(system_prompt: str, user_prompt: str, config: dict) -> dict:
     """Structured Outputs로 {"cases": [...]}를 반환한다. 실패 시 OpenAIError."""
+    result = call_structured_json(
+        system_prompt,
+        user_prompt,
+        config,
+        schema=RESPONSE_SCHEMA,
+        schema_name="mail_change_extraction",
+    )
+    if not isinstance(result.get("cases"), list):
+        raise OpenAIError("OpenAI 응답에 cases 배열이 없습니다.")
+    return result
+
+
+def call_structured_json(
+    system_prompt: str,
+    user_prompt: str,
+    config: dict,
+    *,
+    schema: dict,
+    schema_name: str,
+) -> dict:
+    """주어진 JSON Schema를 따르는 결과를 반환하는 공용 Structured Output 호출."""
     api_key = config.get("api_key", "")
     if not api_key:
         raise OpenAIError("OPENAI_API_KEY가 설정되지 않았습니다.")
@@ -84,9 +105,9 @@ def call_structured_extraction(system_prompt: str, user_prompt: str, config: dic
         "response_format": {
             "type": "json_schema",
             "json_schema": {
-                "name": "mail_change_extraction",
+                "name": schema_name,
                 "strict": True,
-                "schema": RESPONSE_SCHEMA,
+                "schema": schema,
             },
         },
     }
@@ -118,8 +139,5 @@ def call_structured_extraction(system_prompt: str, user_prompt: str, config: dic
         result = json.loads(content)
     except (KeyError, IndexError, json.JSONDecodeError) as exc:
         raise OpenAIError("OpenAI 응답 형식이 올바르지 않습니다.") from exc
-
-    if not isinstance(result.get("cases"), list):
-        raise OpenAIError("OpenAI 응답에 cases 배열이 없습니다.")
 
     return result

@@ -23,7 +23,11 @@ Manager(AWS Secrets Manager, HashiCorp Vault, 사내 Vault Proxy 등) SDK
 import os
 from pathlib import Path
 
-_ENV_PATH = Path(__file__).resolve().parent / ".env"
+_MODULE_DIR = Path(__file__).resolve().parent
+_ENV_PATHS = [
+    _MODULE_DIR.parents[1] / ".env",  # 프로젝트 루트: Sender/Receiver 공용 권장 위치
+    _MODULE_DIR / ".env",             # 기존 Receiver 전용 위치도 하위 호환
+]
 _dotenv_loaded = False
 
 
@@ -32,17 +36,18 @@ def _load_dotenv_once():
     if _dotenv_loaded:
         return
     _dotenv_loaded = True
-    if not _ENV_PATH.exists():
-        return
-    for raw_line in _ENV_PATH.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
+    for env_path in _ENV_PATHS:
+        if not env_path.exists():
             continue
-        key, _, value = line.partition("=")
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-        if key:
-            os.environ.setdefault(key, value)
+        for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key:
+                os.environ.setdefault(key, value)
 
 
 def get_openai_config() -> dict:

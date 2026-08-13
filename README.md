@@ -1,101 +1,170 @@
-# clovis — 메일 업무 자동화 서비스
+# CLOVIS MOVE.AI
 
-선박 운영 관련 메일 업무(발송/수신)를 AI로 자동화하는 서비스입니다.
-발송 자동화(Sender), 수신 자동화(Receiver), 프론트(Frontend) 세 파트가
-서로 다른 사람이 동시에 작업해도 파일이 충돌하지 않도록 폴더가
-모듈화되어 있습니다.
+> 분류된 물류 변경 메일을 **운영 가능한 의사결정**으로 바꾸는 AI 물류 커뮤니케이션 워크벤치
 
-## 3파트 역할
+CLOVIS MOVE.AI는 사내 DoCX-AI가 `운송 지연/물류 변경`으로 분류한 메일을 받아,
+메일 속 변경값을 운영 DB와 대조하고 위험도·대응안을 제시합니다. 담당자가 최종
+승인하면 영문 파트너 회신과 국문 내부 보고까지 한 흐름으로 연결합니다.
 
-1. **발송 자동화 (Sender)** — 사용자가 정해진 체크 항목(비용 집계, 물건
-   상태값 등 매일 반복되는 단순 보고 사항)을 입력하면, AI가 이를 메일
-   형식 문장으로 작성해줍니다.
-2. **수신 자동화 (Receiver)** — 수신 메일 중 변경 사항 관련 메일의 내용을
-   AI가 요약·추출하여 기존 DB(선박 일정/화물량 등)와 대조하고, 변경된
-   사항을 선박 ID 기준으로 사용자에게 알립니다.
-3. **프론트 (Frontend)** — 첫 페이지에서 "메일 수신 처리" / "메일 발신
-   작성" 중 하나를 선택하면 각각 수신 전용 페이지, 발신 전용 페이지로
-   이동합니다. 두 페이지는 별도 파일(`receive.html` / `send.html`)로
-   분리되어 있어 Sender/Receiver와 무관하게 화면만 독립적으로 수정할 수
-   있습니다.
+이 프로젝트는 현대글로비스 물류 해커톤을 위한 로컬 실행형 MVP입니다.
 
-## 담당 폴더 — "이 폴더만 수정하면 됩니다"
+## 해결하려는 문제
 
-| 파트 | 폴더 | 비고 |
+현업 물류 메일은 정해진 양식 없이 가격, 선복, 위치, 일정, 통관, 파손 등 여러
+내용이 섞여 들어옵니다. 담당자는 메일을 읽고 변경된 값만 찾은 뒤 운영 DB를
+수기로 수정하고, 영향도를 판단해 관계자에게 다시 보고해야 합니다.
+
+CLOVIS MOVE.AI는 분류 자체를 중복 개발하지 않고 **분류 이후의 판단·승인·소통**에
+집중합니다.
+
+## 핵심 흐름
+
+```mermaid
+flowchart LR
+    A["DoCX-AI<br/>물류 변경 메일 분류"] --> B["AI 변경값·근거 추출"]
+    B --> C["운영 DB 대조"]
+    C --> D["AI 위험도·영향 분석"]
+    D --> E["대응안 우선순위 추천"]
+    E --> F{"담당자 승인"}
+    F -->|승인| G["DB 반영·감사 이력"]
+    F -->|반려| H["DB 미반영·반려 이력"]
+    G --> I["영문 회신 + 국문 보고"]
+    H --> I
+```
+
+## 주요 기능
+
+| 영역 | 기능 | 설명 |
 | --- | --- | --- |
-| 발송 자동화 (Sender) | [`backend/sender/`](backend/sender/) | 다른 파트는 이 폴더를 수정하지 않습니다 |
-| 수신 자동화 (Receiver) | [`backend/receiver/`](backend/receiver/) | 다른 파트는 이 폴더를 수정하지 않습니다 |
-| 프론트 (Frontend) | [`frontend/`](frontend/) | 다른 파트는 이 폴더를 수정하지 않습니다 |
-| 공용 | [`common/`](common/) | 세 파트가 공유하는 유틸/타입만. 임의로 늘리지 않습니다 |
+| 수신 | 비정형 변경 추출 | 선명, 호출부호, ETA, 경로, 화물량과 원문 근거를 구조화합니다. |
+| 수신 | DB 변경안 | 메일값과 기존 운영 DB를 필드 단위로 비교해 변경 후보만 표시합니다. |
+| 판단 | 위험·영향 분석 | 일정 변경폭, 입항 임박, 용량, 데이터 품질 등을 바탕으로 위험과 근거를 제시합니다. |
+| 판단 | 대응안 추천 | 기존 운송 유지, 대체 선박, 긴급 항공, 일부 항공, 납기 재협의를 우선순위화합니다. |
+| 통제 | Human-in-the-loop | 담당자 승인 전에는 운영 DB가 변경되지 않습니다. 반려도 감사 이력에 남습니다. |
+| 발신 | 커뮤니케이션 패키지 | 해외 파트너 영문 회신과 내부 보고용 한국어 요약을 동시에 생성합니다. |
+| 검증 | Communication Guard | 누락·미정 표현·최종 검토 여부를 확인하고 발송 준비도를 표시합니다. |
+| 반복업무 | 일반 메일 작성 | 회신, 업무보고, 협조 요청, 일정 변경 등 7개 템플릿을 제공합니다. |
 
-즉, receiver 파트 담당자는 `backend/receiver/` 폴더만 건드리면 되고, sender
-파트 담당자는 `backend/sender/`만, frontend 담당자는 `frontend/`만 건드리면
-됩니다.
+## 서비스 화면
 
-## 폴더 구조
+- **수신 워크벤치**: 변경 메일 입력 → 추출 → DB 대조 → 위험/대응 판단 → 승인/반려
+- **우선순위 대시보드**: 일정 변경폭, 화물량 변경률, 입항 임박도 기준 업무 정렬
+- **변경 이력**: 승인/반려 결과와 변경 필드, 메일 근거 감사 추적
+- **발신 스튜디오**: 수신 분석 인계 → 영문/국문 초안 편집 → 최종 검토 → 복사/TXT 저장
 
+## 기술 구성
+
+| 구분 | 사용 기술 |
+| --- | --- |
+| Frontend | HTML, CSS, Vanilla JavaScript |
+| Receiver API | Python, FastAPI, Uvicorn |
+| Sender API | Python 표준 라이브러리 기반 HTTP 서버 |
+| Data | SQLite + JSON 데모 시나리오 |
+| AI | OpenAI-compatible Structured Output API |
+| Local integration | `localStorage` 기반 Receiver → Sender 인계 |
+
+## 빠른 실행
+
+### 1. 가상환경과 의존성 설치
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r backend\receiver\requirements.txt
 ```
-clovis/
-├── backend/
-│   ├── sender/     # 발송 자동화 전용. server.py가 API(8765)와
-│   │                 frontend/ 정적 파일을 함께 제공한다
-│   └── receiver/   # 수신 자동화 전용 API (포트 8766)
-├── frontend/       # 화면 전용 (별도 서버 없이 backend/sender/server.py가 함께 제공)
-│   ├── index.html    # 첫 페이지 (수신/발신 선택)
-│   ├── receive.html  # 수신 전용 화면
-│   └── send.html     # 발신 전용 화면
-├── common/         # 세 파트 공유 유틸/타입 (있는 경우만)
-├── run_local.py    # 두 백엔드를 한 번에 띄우고 첫 페이지를 여는 실행 스크립트
-├── run_local.bat   # 위 스크립트를 더블클릭으로 실행하는 Windows용 래퍼
-└── README.md
+
+### 2. AI 키 연결
+
+발표와 실제 기능 시연은 AI API 연결 상태를 기준으로 합니다. 프로젝트 루트에서 다음과
+같이 설정합니다.
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-## 로컬 실행 방법
+`.env`에 키와 사용할 모델을 입력합니다.
 
-### 가장 쉬운 방법: 한 번에 실행
+```dotenv
+OPENAI_API_KEY=your_key_here
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+```
 
-두 백엔드를 각자 따로 띄울 필요 없이, 저장소 루트에서 아래 하나만
-실행하면 된다.
+> `.env`는 Git 제외 대상이며 브라우저로 전달되지 않습니다.
 
-```bash
+### 3. 한 번에 실행
+
+```powershell
 python run_local.py
 ```
 
-(Windows에서는 `run_local.bat`을 더블클릭해도 된다.)
+Windows에서는 `run_local.bat`을 더블클릭해도 됩니다.
 
-- Receiver(8766)와 Sender(8765)를 함께 띄운다. Sender 서버가 저장소
-  전체를 정적 파일로도 제공하므로 `frontend/` 전용 서버는 따로 필요
-  없다.
-- 두 서버가 응답하면 첫 페이지(`http://127.0.0.1:8765/frontend/index.html`)
-  를 기본 브라우저로 자동으로 연다. 거기서 "메일 수신 처리" /
-  "메일 발신 작성" 링크를 누르면 각 화면으로 이동하며, 두 화면 모두
-  바로 동작한다(별도로 다른 서버를 추가로 켤 필요가 없다).
-- 사전에 `pip install -r backend/receiver/requirements.txt`가 되어
-  있어야 한다(Sender는 표준 라이브러리만 사용).
-- 종료하려면 스크립트를 실행한 창에서 `Ctrl+C`를 누른다. 두 서버가
-  함께 종료된다.
+| 서비스 | 주소 |
+| --- | --- |
+| 시작 화면 | <http://127.0.0.1:8765/frontend/index.html> |
+| 수신 워크벤치 | <http://127.0.0.1:8765/frontend/receive.html> |
+| 발신 스튜디오 | <http://127.0.0.1:8765/frontend/send.html> |
+| Receiver health | <http://127.0.0.1:8766/health> |
 
-### 수동 실행 (각 파트를 따로 띄우고 싶을 때)
+종료는 실행한 터미널에서 `Ctrl+C`를 누릅니다.
 
-| 파트 | 실행 위치 | 명령어 | 접속 |
-| --- | --- | --- | --- |
-| Sender (+ frontend 정적 파일) | 저장소 루트 | `python backend/sender/server.py` | `http://127.0.0.1:8765/frontend/index.html` |
-| Receiver | `backend/receiver/` | `pip install -r requirements.txt && uvicorn main:app --reload --port 8766` | `http://127.0.0.1:8766/health` |
+## AI 처리 원칙
 
-Sender 서버 하나만으로 `index.html`/`receive.html`/`send.html`이 모두
-열람 가능하지만, `receive.html`의 기능이 동작하려면 Receiver도 함께
-떠 있어야 한다(반대로 `send.html`은 Sender 서버 하나로 완결된다).
+1. 메일에 실제로 적힌 값만 추출하고 값마다 원문 근거를 보존합니다.
+2. 찾지 못한 필드는 추측으로 채우지 않고 `extraction_failed`로 표시합니다.
+3. 위험 분석에는 원문 전체가 아니라 DB 대조 후의 구조화된 확정 사실만 전달합니다.
+4. 위험 점수·추천 대응과 함께 판단 이유를 반환합니다.
+5. AI 결과는 제안이며 DB 반영과 실제 발송은 항상 담당자가 최종 결정합니다.
+6. AI 호출에 실패하면 오류 상태를 명확히 표시하고 안전한 폴백으로 데모 중단을 방지합니다.
 
-세부 실행 방법과 담당 범위는 각 폴더의 README.md를 참고하세요.
+## 프로젝트 구조
 
-## 개발 로드맵
+```text
+clovis-move-ai/
+├── backend/
+│   ├── receiver/          # 추출, DB 대조, 위험·대응, 승인/반려, 이력 API
+│   └── sender/            # 커뮤니케이션/일반 메일 생성 API와 정적 서버
+├── frontend/
+│   ├── index.html         # 시작 화면
+│   ├── receive.html       # 수신 의사결정 워크벤치
+│   ├── send.html          # 발신 커뮤니케이션 스튜디오
+│   └── clovis-theme.css   # 공통 디자인 시스템
+├── docs/                  # 발표·아키텍처·데모 문서
+├── common/                # 공용 코드 영역
+├── .env.example           # AI 설정 예시
+├── run_local.py           # Receiver + Sender 통합 실행
+└── run_local.bat          # Windows 실행 래퍼
+```
 
-1. **Receiver MVP** — 수신 메일 요약·추출 및 DB 대조 기본 동작 구현
-2. **Sender** — 체크 항목 입력 → AI 메일 문장 생성 기본 동작 구현
-3. **Receiver 고도화** — 정확도 개선, 예외 케이스 처리, 알림 개선
-4. **아키텍처 전환** — 서비스 규모에 맞춘 구조 개편 (예: 배포/인프라 정리)
+## 데모와 실서비스의 경계
 
-## 공유 파일 수정 규칙
+현재 MVP에서 구현된 범위:
 
-이 README, `common/`, 루트 설정 파일 등 여러 파트가 함께 의존하는 파일을
-수정할 때는 반드시 PR 리뷰를 거쳐 머지합니다.
+- 로컬 SQLite 기반 운영 DB 대조와 승인/반려
+- 준비된 물류 변경 시나리오
+- AI API 기반 실제 변경 추출·위험 분석·대응 추천·영문/국문 생성
+- AI 장애 시 데모 중단을 막는 설명 가능한 안전 폴백
+- 완료 사례가 아직 축적되지 않은 해커톤 환경을 위한 유사 사례 데모 데이터
+
+추가 연동이 필요한 범위:
+
+- Outlook/Gmail/사내 메일 시스템의 실시간 수신·발송
+- 사내 DoCX-AI API와 실제 운영 DB 연결
+- 완료 사례 저장소 기반 검색 및 AI 유사도 재정렬
+- SSO, 권한 관리, 개인정보 마스킹, 운영 모니터링
+
+## 발표·개발 문서
+
+- [PPT/Notion 원고](docs/PPT_NOTION_CONTENT.md)
+- [서비스 아키텍처](docs/ARCHITECTURE.md)
+- [모델 및 프롬프트 설계](docs/AI_PROMPT_DESIGN.md)
+- [3분 데모 가이드](docs/DEMO_GUIDE.md)
+- [GitHub 업로드 가이드](docs/GITHUB_UPLOAD_GUIDE.md)
+
+## 주의사항
+
+- `.env`, 로컬 SQLite DB, `__pycache__`는 저장소에 올리지 않습니다.
+- 정상 발표는 실제 AI 모드로 진행하며, 장애 시 폴백 전환 여부를 화면에 표시합니다.
+- 유사 사례는 해커톤용 데모 데이터이며 실제 고객·운송 이력이 아닙니다.
+- 생성된 메일은 실제 발송 전 담당자가 반드시 검토해야 합니다.

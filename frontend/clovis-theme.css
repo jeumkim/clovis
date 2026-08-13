@@ -1,0 +1,109 @@
+:root {
+  --clovis-navy-950: #071727;
+  --clovis-navy-900: #0b2239;
+  --clovis-navy-800: #123a5b;
+  --clovis-blue-700: #1d557e;
+  --clovis-orange-600: #e85c18;
+  --clovis-orange-500: #f27622;
+  --clovis-orange-100: #fff0e5;
+  --clovis-mint-500: #24a88a;
+  --clovis-mint-100: #e8f7f3;
+  --clovis-bg: #f2f5f7;
+  --clovis-panel: #ffffff;
+  --clovis-border: #dce4ec;
+  --clovis-text: #17283b;
+  --clovis-muted: #66798c;
+  --clovis-warning: #cb8d10;
+  --clovis-danger: #c63c4e;
+  --clovis-radius: 8px;
+  --clovis-shadow: 0 8px 22px rgba(15, 43, 70, .065);
+}
+
+.clovis-header {
+  width: 100%; min-height: 64px; display: flex; align-items: center; gap: 1rem;
+  padding: 0 2rem; box-sizing: border-box; color: #fff; background: var(--clovis-navy-950);
+  border-bottom: 3px solid var(--clovis-orange-500); box-shadow: 0 5px 18px rgba(4,18,37,.16);
+}
+.clovis-brand { display: flex; align-items: center; gap: .65rem; color: #fff; text-decoration: none; }
+.clovis-brand__mark { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,.42); border-radius: 4px; color: #fff; font-weight: 900; overflow: hidden; }
+.clovis-brand__mark::after { content: ""; position: absolute; width: 26px; height: 5px; right: -8px; bottom: 3px; background: var(--clovis-orange-500); transform: rotate(-38deg); }
+.clovis-brand strong, .clovis-brand small { display: block; }
+.clovis-brand strong { letter-spacing: .15em; font-size: .86rem; }
+.clovis-brand small { color: #9fb2c8; letter-spacing: .08em; font-size: .54rem; }
+.clovis-brand__suite { margin-left: .55rem; padding-left: .75rem; border-left: 1px solid rgba(255,255,255,.24); color: #fff; font-size: .68rem; font-weight: 800; letter-spacing: .08em; }
+.clovis-brand__suite em { color: var(--clovis-orange-500); font-style: normal; }
+.clovis-nav { display: flex; align-self: stretch; margin-left: 1.5rem; }
+.clovis-nav a { display: flex; align-items: center; padding: 0 1rem; color: #b8c8da; text-decoration: none; font-size: .82rem; border-bottom: 3px solid transparent; }
+.clovis-nav a:hover, .clovis-nav a.is-active { color: #fff; background: rgba(255,255,255,.05); border-bottom-color: var(--clovis-orange-500); }
+.clovis-system { margin-left: auto; color: #91a6bc; font-size: .66rem; letter-spacing: .1em; }
+.clovis-system i { display: inline-block; width: 7px; height: 7px; margin-right: .4rem; border-radius: 50%; background: #3ed6a8; box-shadow: 0 0 0 4px rgba(62,214,168,.12); }
+
+.clovis-hero { position: relative; overflow: hidden; color: #fff !important; border-radius: 8px !important; background: radial-gradient(circle at 88% 18%, rgba(242,118,34,.24), transparent 28%), linear-gradient(120deg,var(--clovis-navy-950),#123d61 70%,#174f6b) !important; box-shadow: 0 13px 28px rgba(10,31,60,.13) !important; }
+.clovis-hero::after { content: ""; position: absolute; right: -58px; bottom: -98px; width: 250px; height: 250px; border: 1px solid rgba(255,255,255,.1); border-radius: 50%; box-shadow: 0 0 0 42px rgba(255,255,255,.025),0 0 0 84px rgba(255,255,255,.018); pointer-events: none; }
+
+.clovis-opsbar { display: grid; grid-template-columns: repeat(4,1fr); margin: .75rem 0 0; border: 1px solid var(--clovis-border); border-radius: 8px; background: #fff; box-shadow: var(--clovis-shadow); overflow: hidden; }
+.clovis-opsbar__item { display: flex; align-items: center; gap: .65rem; min-width: 0; padding: .7rem .8rem; border-right: 1px solid var(--clovis-border); }
+.clovis-opsbar__item:last-child { border-right: 0; }
+.clovis-opsbar__icon { display: grid; place-items: center; flex: 0 0 27px; width: 27px; height: 27px; border-radius: 5px; color: var(--clovis-orange-600); background: var(--clovis-orange-100); font-size: .7rem; font-weight: 900; }
+.clovis-opsbar__copy { min-width: 0; }
+.clovis-opsbar__copy strong,.clovis-opsbar__copy span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.clovis-opsbar__copy strong { color: var(--clovis-navy-900); font-size: .72rem; }
+.clovis-opsbar__copy span { margin-top: .08rem; color: var(--clovis-muted); font-size: .62rem; }
+.clovis-opsbar__item.is-ready .clovis-opsbar__icon { color: #087257; background: #e5f7f1; }
+
+.receiver-page { max-width: none !important; margin: 0 !important; padding: 0 !important; color: var(--clovis-text); background: var(--clovis-bg); font-family: "Malgun Gothic","Segoe UI",system-ui,-apple-system,sans-serif; font-size: 14px; }
+.receiver-shell { max-width: 1180px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; }
+.receiver-page .panel, .receiver-page .case-card { border: 1px solid var(--clovis-border); border-radius: var(--clovis-radius); background: var(--clovis-panel); box-shadow: var(--clovis-shadow); }
+.receiver-page .tabs { border-bottom-color: var(--clovis-border); }
+.receiver-page .tab-btn { color: var(--clovis-muted); border-bottom: 3px solid transparent; border-radius: 0; padding: .75rem 1rem; }
+.receiver-page .tab-btn.is-active { color: var(--clovis-navy-900); background: transparent; border: none; border-bottom: 3px solid var(--clovis-orange-500); margin-bottom: -1px; }
+.receiver-page input[type="text"], .receiver-page textarea, .receiver-page select {
+  border: 1px solid #cfd9e3; border-radius: 7px; background: #fff; color: var(--clovis-text); padding: .58rem .65rem;
+}
+.receiver-page input:focus, .receiver-page textarea:focus, .receiver-page select:focus { outline: 2px solid rgba(28,85,127,.22); border-color: var(--clovis-blue-700); }
+.receiver-page button.primary { border: none; border-radius: 6px; background: var(--clovis-orange-600); font-weight: 800; box-shadow: 0 4px 10px rgba(232,92,24,.18); }
+.receiver-page button.primary:hover { background: #cc4b0d; }
+.receiver-page .example-btn { border-color: #cbd6e0; background: #fff; border-radius: 8px; }
+.receiver-page .example-btn:hover, .receiver-page .example-btn.is-loaded { border-color: var(--clovis-orange-500); background: var(--clovis-orange-100); }
+.receiver-page table.field-table th, .receiver-page table.dashboard-table th { color: #52677c; background: #f4f7fa; }
+.receiver-page table.field-table td, .receiver-page table.field-table th, .receiver-page table.dashboard-table td, .receiver-page table.dashboard-table th { border-color: #e1e7ed; }
+.receiver-page .case-card__header { background: linear-gradient(90deg,#f5f8fb,#edf8f5); border-bottom-color: var(--clovis-border); }
+.receiver-page .decision-support { border-color: var(--clovis-border); background: #fbfdff; }
+.receiver-page .package-button, .receiver-page .handoff-btn { background: var(--clovis-orange-500); color: #fff; border-radius: 6px; }
+
+.receiver-page .pipeline span { transition: .2s ease; }
+.receiver-page .pipeline span.is-done { border-color: rgba(62,214,168,.52); background: rgba(62,214,168,.15); color: #ddfff5; }
+.receiver-page .pipeline span.is-active { border-color: rgba(242,118,34,.8); background: rgba(242,118,34,.18); color: #fff; box-shadow: inset 3px 0 0 var(--clovis-orange-500); }
+
+.ai-mode-chip { display: inline-flex; align-items: center; gap: .3rem; margin-top: .35rem; padding: .2rem .46rem; border: 1px solid #9fdcca; border-radius: 999px; color: #0d755e; background: #ebfaf6; font-size: .66rem; font-weight: 800; }
+.ai-mode-chip.fallback { color: #7e6518; border-color: #e3d18d; background: #fff9df; }
+.ai-mode-chip.error { color: #982f40; border-color: #e2aab3; background: #fff0f2; }
+.ai-error-note { margin-top: .4rem; color: #982f40; font-size: .68rem; }
+
+/* Sender 화면도 Receiver와 같은 운영 디자인 시스템을 사용한다. */
+.communication-page { max-width: 1320px; }
+.communication-page .studio-eyebrow,.communication-page .studio-hero .studio-eyebrow { color: #ffb07a; }
+.communication-page .context-kicker { color: var(--clovis-orange-600); }
+.communication-page .hero-flow b { color: #ff9a59; }
+.communication-page .workspace-switch__button.is-active { color: var(--clovis-navy-900); border-bottom-color: var(--clovis-orange-500); }
+.communication-page .workspace-count { background: var(--clovis-orange-600); }
+.communication-page .btn { border-color: var(--clovis-orange-600); border-radius: 6px; background: var(--clovis-orange-600); color: #fff; }
+.communication-page .btn:hover { border-color: #cc4b0d; background: #cc4b0d; }
+.communication-page .btn.btn--ghost { border-color: #bdcad6; background: #fff; color: var(--clovis-navy-800); }
+.communication-page .btn.btn--ghost:hover { border-color: var(--clovis-orange-500); background: var(--clovis-orange-100); color: #aa3e0a; }
+.communication-page .dispatch-actions .btn.is-reviewed,.communication-page .dispatch-actions .btn.is-reviewed:hover { border-color: #159576; background: #159576; color: #fff; }
+.communication-page .type-item.is-selected { border-color: var(--clovis-orange-500); background: var(--clovis-orange-100); }
+.communication-page .type-item--primary,.communication-page .type-item--primary.is-selected { border-color: var(--clovis-navy-900); background: var(--clovis-navy-900); }
+.communication-page .importance-options button.is-active { background: var(--clovis-navy-800); }
+.communication-page .handoff-empty__icon { color: var(--clovis-orange-600); background: var(--clovis-orange-100); }
+.communication-page .action-summary { border-color: #f1c3a6; background: #fff5ee; }
+.communication-page .action-summary span { color: #a45c34; }
+.communication-page .action-summary strong { color: #a8400d; }
+.communication-page .action-summary p { color: #765c4e; }
+.communication-page .memory-card { border-color: #d8e0e7; background: #f7f9fb; }
+.communication-page .memory-card span { color: var(--clovis-blue-700); }
+.communication-page .review-chip { color: #9a4a1e; background: #fff2e9; border-color: #efc6ae; }
+.communication-page .studio-footer-action { background: #f2f6f8; }
+
+@media(max-width:900px){.clovis-opsbar{grid-template-columns:repeat(2,1fr)}.clovis-opsbar__item:nth-child(2){border-right:0}.clovis-opsbar__item:nth-child(-n+2){border-bottom:1px solid var(--clovis-border)}}
+@media(max-width:720px){.clovis-header{padding:0 .9rem}.clovis-nav{margin-left:.3rem}.clovis-nav a{padding:0 .55rem;font-size:.7rem}.clovis-system,.clovis-brand__suite{display:none}.receiver-shell{padding:.8rem}.clovis-brand small{display:none}.clovis-opsbar{grid-template-columns:1fr 1fr}.clovis-opsbar__item{padding:.55rem}.clovis-opsbar__copy span{display:none}}
