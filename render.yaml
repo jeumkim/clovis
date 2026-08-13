@@ -1,0 +1,65 @@
+# Render Blueprint
+#
+# Render 대시보드에서 "New +" -> "Blueprint"로 이 저장소를 연결하면
+# 아래 두 서비스가 한 번에 생성/배포된다.
+#
+#   1. clovis-receiver : backend/receiver를 FastAPI(uvicorn)로 실행.
+#   2. clovis-sender   : 저장소 루트를 정적 파일 루트로 삼아 frontend/
+#                        전체(index.html, receive.html, send.html)를
+#                        서빙하면서 backend/sender API도 같은 주소에서
+#                        제공한다. backend/sender/server.py는 수정하지
+#                        않고, deploy/render_sender_entry.py가 그 파일의
+#                        핸들러를 그대로 재사용해 PORT 환경변수에 맞게
+#                        띄운다. 최종적으로 사용자에게 공유할 서비스
+#                        URL은 이 clovis-sender 쪽이며, 접속 시
+#                        "<서비스 URL>/frontend/index.html" 경로로
+#                        들어가야 랜딩 페이지가 뜬다.
+#
+# receive.html은 frontend/config.js를 통해 clovis-receiver 서비스
+# URL을 호출하도록 되어 있다. Render가 서비스 생성 시 이름이 겹쳐
+# 실제 URL이 https://clovis-receiver.onrender.com이 아니게 되면,
+# frontend/config.js의 CLOVIS_API_BASE 값을 실제 URL로 바꿔서 다시
+# 커밋해야 한다.
+#
+# OPENAI_API_KEY는 여기 파일에 값이 없다(sync: false) -> 저장소에는
+# 절대 포함되지 않고, Render 대시보드에서 서비스별로 직접 입력해야
+# 한다. 입력하지 않아도 서비스는 정상 기동하며, 이 경우 자동으로
+# mock/표준 미리보기 경로로 동작한다(README의 "AI 키 연결 전에도
+# 데모 시나리오 전체 흐름이 작동합니다" 참고).
+
+services:
+  - type: web
+    name: clovis-receiver
+    runtime: python
+    plan: free
+    rootDir: backend/receiver
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+
+  - type: web
+    name: clovis-sender
+    runtime: python
+    plan: free
+    rootDir: .
+    buildCommand: pip install -r backend/sender/requirements.txt
+    startCommand: python deploy/render_sender_entry.py
+    healthCheckPath: /api/sender/ai-status
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini

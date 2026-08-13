@@ -27,18 +27,18 @@ body {
 
 /* ---------- Clovis 통합 랜딩 ---------- */
 .landing-body {
-  --navy: #071c38;
-  --blue: #123e67;
-  --mint: #54dfbd;
+  --navy: #00204e;
+  --blue: #003478;
+  --mint: #00aad2;
   max-width: none;
   min-height: 100vh;
   margin: 0;
   padding: 0;
   color: #eaf2f9;
   background:
-    radial-gradient(circle at 90% 5%, rgba(35,151,143,.25), transparent 30%),
-    radial-gradient(circle at 8% 95%, rgba(27,77,124,.42), transparent 34%),
-    #06182f;
+    radial-gradient(circle at 90% 5%, rgba(0,170,210,.22), transparent 30%),
+    radial-gradient(circle at 8% 95%, rgba(0,52,120,.42), transparent 34%),
+    #04162e;
 }
 .control-landing { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 2rem; }
 .landing-nav { height: 72px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.12); }
@@ -61,7 +61,7 @@ body {
 .workspace-card { position: relative; min-height: 355px; padding: 1.5rem; overflow: hidden; color: #eaf2f9; text-decoration: none; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; background: rgba(255,255,255,.055); transition: transform .18s ease,border-color .18s ease,background .18s ease; }
 .workspace-card:hover { transform: translateY(-4px); border-color: rgba(84,223,189,.55); background: rgba(255,255,255,.075); }
 .workspace-card--receive { background: linear-gradient(145deg,rgba(18,62,103,.68),rgba(9,35,64,.74)); }
-.workspace-card--send { background: linear-gradient(145deg,rgba(11,87,95,.62),rgba(9,35,64,.74)); }
+.workspace-card--send { background: linear-gradient(145deg,rgba(10,74,143,.55),rgba(9,35,64,.74)); }
 .workspace-card__number { position: absolute; right: 1.2rem; top: .75rem; color: rgba(255,255,255,.09); font-size: 4.8rem; font-weight: 900; }
 .workspace-card__icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 1rem; border-radius: 9px; color: #062a27; background: var(--mint); font-size: 1.25rem; font-weight: 900; }
 .workspace-card__kicker { color: var(--mint); font-size: .65rem; font-weight: 900; letter-spacing: .14em; }

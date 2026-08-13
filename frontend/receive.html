@@ -6,6 +6,7 @@
   <title>메일 수신 처리</title>
   <link rel="stylesheet" href="./style.css?v=studio-2" />
   <link rel="stylesheet" href="./clovis-theme.css?v=glovis-3" />
+  <script src="./config.js"></script>
   <style>
     body {
       max-width: 1080px;
@@ -415,8 +416,8 @@
     .workspace-hero {
       color: #fff;
       background:
-        radial-gradient(circle at 85% 20%, rgba(50, 214, 178, 0.22), transparent 28%),
-        linear-gradient(130deg, #071b38 0%, #0d345b 58%, #0b4d65 100%);
+        radial-gradient(circle at 85% 20%, rgba(0, 170, 210, 0.22), transparent 28%),
+        linear-gradient(130deg, #00204e 0%, #0d345b 58%, #0a4a8f 100%);
       border-radius: 18px;
       padding: 1.55rem 1.7rem;
       margin-top: 0.8rem;
@@ -426,9 +427,9 @@
     .workspace-hero__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .workspace-nav { display: flex; gap: .35rem; }
     .workspace-nav a { color: #dbe9f5; text-decoration: none; border: 1px solid rgba(255,255,255,.18); border-radius: 7px; padding: .42rem .65rem; font-size: .72rem; }
-    .workspace-nav a.is-active, .workspace-nav a:hover { color: #08352f; background: #78efd3; border-color: #78efd3; }
+    .workspace-nav a.is-active, .workspace-nav a:hover { color: #001a43; background: #aec6ff; border-color: #aec6ff; }
     .eyebrow {
-      color: #78efd3;
+      color: #6fc4e0;
       font-size: 0.76rem;
       font-weight: 800;
       letter-spacing: 0.16em;
@@ -448,7 +449,7 @@
       padding: 0.34rem 0.65rem;
       font-size: 0.75rem;
     }
-    .pipeline span::after { content: "  →"; margin-left: 0.35rem; color: #78efd3; }
+    .pipeline span::after { content: "  →"; margin-left: 0.35rem; color: #6fc4e0; }
     .pipeline span:last-child::after { content: ""; }
     .docx-banner {
       display: flex;
@@ -456,30 +457,30 @@
       justify-content: space-between;
       gap: 1rem;
       padding: 0.8rem 0.95rem;
-      background: #e9fbf5;
-      border: 1px solid #a9ecd9;
+      background: #eaf2fb;
+      border: 1px solid #bcd6ef;
       border-radius: 10px;
       margin-bottom: 1rem;
     }
-    .docx-banner strong { color: #08624e; }
+    .docx-banner strong { color: #0a3d73; }
     .live-dot {
       display: inline-block;
       width: 8px;
       height: 8px;
-      background: #13b98b;
+      background: #00aad2;
       border-radius: 50%;
-      box-shadow: 0 0 0 4px rgba(19,185,139,0.13);
+      box-shadow: 0 0 0 4px rgba(0,170,210,0.15);
       margin-right: 0.45rem;
     }
     .panel, .case-card { border-color: #dfe7f0; box-shadow: 0 8px 22px rgba(27, 53, 86, 0.06); }
     .case-card { border-radius: 14px; }
-    .case-card__header { background: linear-gradient(90deg, #f6f9fc, #edf7f6); padding: 0.9rem 1.05rem; }
+    .case-card__header { background: linear-gradient(90deg, #f6f9fc, #eef3fb); padding: 0.9rem 1.05rem; }
     .case-card__title { margin-right: auto; }
     .risk-badge { color: #fff; }
-    .risk-badge.low { background: #238b68; }
-    .risk-badge.medium { background: #d89712; }
-    .risk-badge.high { background: #e05b26; }
-    .risk-badge.critical { background: #c72f46; }
+    .risk-badge.low { background: #2f7d5c; }
+    .risk-badge.medium { background: #b8863a; }
+    .risk-badge.high { background: #bf5b2f; }
+    .risk-badge.critical { background: #ba1a1a; }
     .decision-support {
       border: 1px solid #dbe6ef;
       border-radius: 12px;
@@ -510,15 +511,15 @@
       display: grid;
       place-items: center;
       color: white;
-      background: #d89712;
+      background: #b8863a;
       font-weight: 800;
       font-size: 1.25rem;
       box-shadow: inset 0 0 0 7px rgba(255,255,255,0.22);
       flex: 0 0 auto;
     }
-    .risk-score.low { background: #238b68; }
-    .risk-score.high { background: #e05b26; }
-    .risk-score.critical { background: #c72f46; }
+    .risk-score.low { background: #2f7d5c; }
+    .risk-score.high { background: #bf5b2f; }
+    .risk-score.critical { background: #ba1a1a; }
     .risk-title strong { display: block; font-size: 1.02rem; }
     .risk-title span { font-size: 0.75rem; color: #6a7d90; }
     .risk-reasons { margin: 0; padding-left: 1.1rem; color: #526579; font-size: 0.78rem; }
@@ -540,10 +541,10 @@
       background: #fff;
       cursor: pointer;
     }
-    .action-option:has(input:checked) { border-color: #138a73; background: #effbf7; box-shadow: 0 0 0 2px rgba(19,138,115,0.1); }
-    .action-option input { margin-top: 0.25rem; accent-color: #138a73; }
+    .action-option:has(input:checked) { border-color: #003478; background: #eef3fb; box-shadow: 0 0 0 2px rgba(0,52,120,0.12); }
+    .action-option input { margin-top: 0.25rem; accent-color: #003478; }
     .action-name { display: flex; align-items: center; gap: 0.4rem; font-size: 0.83rem; font-weight: 800; }
-    .recommend-chip { color: #08725b; background: #d5f5eb; border-radius: 999px; padding: 0.12rem 0.42rem; font-size: 0.67rem; }
+    .recommend-chip { color: #003478; background: #d8e2ff; border-radius: 999px; padding: 0.12rem 0.42rem; font-size: 0.67rem; }
     .action-desc { display: block; color: #607386; font-size: 0.75rem; margin-top: 0.2rem; line-height: 1.38; }
     .action-meta { display: block; color: #8393a3; font-size: 0.69rem; margin-top: 0.3rem; }
     .package-button {
@@ -551,7 +552,7 @@
       border: none;
       border-radius: 9px;
       color: #fff;
-      background: linear-gradient(90deg, #0a385f, #0b786d);
+      background: linear-gradient(90deg, #003478, #00aad2);
       padding: 0.72rem 1rem;
       margin-top: 0.75rem;
       font-weight: 800;
@@ -566,14 +567,14 @@
     .message-draft pre { white-space: pre-wrap; word-break: break-word; margin: 0; padding: 0.8rem; font-family: inherit; font-size: 0.75rem; line-height: 1.52; max-height: 320px; overflow: auto; }
     .copy-btn { float: right; border: 1px solid #b6c5d3; background: #fff; border-radius: 6px; padding: 0.2rem 0.45rem; cursor: pointer; font-size: 0.68rem; }
     .section-label { margin: 1.05rem 0 0.5rem; font-size: 0.78rem; color: #536b82; font-weight: 800; }
-    .case-memory { border-top: 1px solid #dbe6ef; padding: 0.85rem 1rem; background: #fffdf4; }
-    .case-memory__title { display: flex; justify-content: space-between; gap: 0.8rem; font-weight: 800; font-size: 0.8rem; color: #5e4b16; }
+    .case-memory { border-top: 1px solid #dbe6ef; padding: 0.85rem 1rem; background: #f6f9fc; }
+    .case-memory__title { display: flex; justify-content: space-between; gap: 0.8rem; font-weight: 800; font-size: 0.8rem; color: #173c62; }
     .case-memory__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; margin-top: 0.55rem; }
-    .case-memory__item { border: 1px solid #eadfae; background: #fff; padding: 0.55rem; border-radius: 7px; font-size: 0.72rem; color: #5e6875; line-height: 1.42; }
-    .case-memory__item strong { display: block; color: #7c651d; margin-bottom: 0.12rem; }
+    .case-memory__item { border: 1px solid #dbe6ef; background: #fff; padding: 0.55rem; border-radius: 7px; font-size: 0.72rem; color: #5e6875; line-height: 1.42; }
+    .case-memory__item strong { display: block; color: #0a385f; margin-bottom: 0.12rem; }
     .handoff-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.8rem; margin-top: 0.8rem; border-radius: 9px; background: #0d2948; color: #fff; }
     .handoff-bar span { font-size: 0.76rem; color: #d5e2ee; }
-    .handoff-btn { border: none; border-radius: 7px; padding: 0.55rem 0.8rem; background: #43d5b1; color: #062b26; font-weight: 800; cursor: pointer; white-space: nowrap; }
+    .handoff-btn { border: none; border-radius: 7px; padding: 0.55rem 0.8rem; background: #aec6ff; color: #001a43; font-weight: 800; cursor: pointer; white-space: nowrap; }
     @media (max-width: 760px) {
       .decision-grid, .package-grid, .case-memory__grid { grid-template-columns: 1fr; }
       .risk-panel { border-right: none; border-bottom: 1px solid #dbe6ef; }
@@ -691,6 +692,169 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    // ---------- AI가 생성한 한국어 텍스트를 화면/메일용으로 정리 ----------
+    // AI 응답은 (1) "선박을(를)"처럼 조사를 확정하지 못하고 괄호 병기로 두거나,
+    // (2) "-습니다"체와 "-음"(명사형 종결/리포트체)을 섞어 쓰거나,
+    // (3) 마크다운(**굵게**, `코드`) 문법을 그대로 텍스트에 남기는 경우가 있다.
+    // 화면/메일 초안에 실제로 보여지기 직전에 아래 함수들로 정리한다.
+
+    function hasBatchim(ch) {
+      const code = ch.charCodeAt(0) - 0xac00;
+      if (code < 0 || code > 11171) return false; // 한글 음절 범위 밖(영문/숫자 등)이면 판단 불가 -> false 취급
+      return code % 28 !== 0;
+    }
+
+    // "선박을(를)", "일정은(는)" 같은 이중 조사 표기를 앞 글자 받침 유무에 맞는
+    // 조사 하나로 확정한다.
+    function resolveParticles(text) {
+      return String(text ?? "").replace(
+        /([가-힣])(을\(를\)|이\(가\)|은\(는\)|과\(와\))/g,
+        (match, ch, pair) => {
+          const [withBatchim, withoutBatchim] = pair.replace(/[()]/g, " ").trim().split(" ");
+          return ch + (hasBatchim(ch) ? withBatchim : withoutBatchim);
+        }
+      );
+    }
+
+    // --------------------------------------------------
+    // 한국어 문체 정리
+    //
+    // 1) 내부 보고용 "보고 내용 정리" → -음 체
+    //    예: "화물량이 감소합니다." → "화물량이 감소함"
+    //
+    // 2) 일반 문장/메일 → -습니다 체
+    //    예: "납기 지연이 예상됩니다." → 그대로 유지
+    // --------------------------------------------------
+
+    // 보고 내용 정리용: -음 체
+    function normalizeReportText(text) {
+      return String(text ?? "")
+        .replace(/예상됩니다(?=[.,\s]|$)/g, "예상됨")
+        .replace(/필요합니다(?=[.,\s]|$)/g, "필요함")
+        .replace(/가능합니다(?=[.,\s]|$)/g, "가능함")
+        .replace(/권고드립니다(?=[.,\s]|$)/g, "권고함")
+        .replace(/됩니다(?=[.,\s]|$)/g, "됨")
+        .replace(/있습니다(?=[.,\s]|$)/g, "있음")
+        .replace(/없습니다(?=[.,\s]|$)/g, "없음")
+        .replace(/높습니다(?=[.,\s]|$)/g, "높음")
+        .replace(/낮습니다(?=[.,\s]|$)/g, "낮음")
+        .replace(/작습니다(?=[.,\s]|$)/g, "작음")
+        .replace(/큽니다(?=[.,\s]|$)/g, "큼")
+        .replace(/합니다(?=[.,\s]|$)/g, "함")
+        .replace(/됩니다\.(?=$)/g, "됨");
+    }
+
+    // 일반 문장/메일용: -습니다 체를 그대로 유지한다.
+    // buildSentenceKoreanReport()에서 생성되는 일반 문장은
+    // "예상됩니다.", "필요합니다." 등의 -습니다 체로 작성된다.
+    function normalizeMessageText(text) {
+      return String(text ?? "")
+        .replace(/예상됨(?=[.,\s]|$)/g, "예상됩니다")
+        .replace(/필요함(?=[.,\s]|$)/g, "필요합니다")
+        .replace(/가능함(?=[.,\s]|$)/g, "가능합니다")
+        .replace(/권고함(?=[.,\s]|$)/g, "권고드립니다")
+        .replace(/됨(?=[.,\s]|$)/g, "됩니다")
+        .replace(/있음(?=[.,\s]|$)/g, "있습니다")
+        .replace(/없음(?=[.,\s]|$)/g, "없습니다")
+        .replace(/높음(?=[.,\s]|$)/g, "높습니다")
+        .replace(/낮음(?=[.,\s]|$)/g, "낮습니다")
+        .replace(/작음(?=[.,\s]|$)/g, "작습니다")
+        .replace(/큼(?=[.,\s]|$)/g, "큽니다")
+        .replace(/함(?=[.,\s]|$)/g, "합니다");
+    }
+
+    function cleanKoreanText(text) {
+      return resolveParticles(String(text ?? ""));
+    }
+
+    // HTML로 표시되는 곳(카드/미리보기)에서 사용: **굵게**를 실제 <strong>으로
+    // 바꾸고, 남은 마크다운 기호(`코드`)는 제거한다. escapeHtml을 함께
+    // 처리하므로 이 함수의 결과를 그대로 innerHTML에 넣어도 안전하다.
+    // type = "report"이면 -음 체, 그 외에는 -습니다 체를 유지한다.
+    function mdToSafeHtml(text, type = "message") {
+      let cleaned = cleanKoreanText(text);
+      cleaned = type === "report"
+        ? normalizeReportText(cleaned)
+        : normalizeMessageText(cleaned);
+
+      return cleaned
+        .split(/(\*\*[^*]+\*\*)/g)
+        .map((part) => {
+          const m = part.match(/^\*\*([^*]+)\*\*$/);
+          if (m) return `<strong>${escapeHtml(m[1])}</strong>`;
+          return escapeHtml(part).replace(/`/g, "");
+        })
+        .join("");
+    }
+
+    // 순수 텍스트로 들어가는 곳(메일 초안 textarea, 클립보드 복사)에서 사용.
+    function mdToPlainText(text, type = "message") {
+      let cleaned = cleanKoreanText(text);
+      cleaned = type === "report"
+        ? normalizeReportText(cleaned)
+        : normalizeMessageText(cleaned);
+
+      return cleaned
+        .replace(/\*\*([^*]+)\*\*/g, "$1")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/^#+\s*/gm, "")
+        .trim();
+    }
+
+    // backend/receiver의 korean_report.body는 "임원이 30초 안에 훑어보는
+    // 스캔형 보고서"(번호 매긴 항목 나열)로 의도적으로 설계되어 있고,
+    // receive.html 자체 화면(내부 보고 카드)에는 그 형태 그대로 보여주는
+    // 게 맞다. 다만 send.html의 "메일 초안" 편집창에 그 텍스트를 그대로
+    // 넣으면 실제 메일처럼 안 읽혀서, 인계(handoff) 시점에만 이미 화면에
+    // 있는 구조화된 값(선박/위험도/변경사항/영향/권고 대응)으로 문장형
+    // 본문을 새로 조립한다. backend는 건드리지 않는다.
+    function buildSentenceKoreanReport({
+      shipName,
+      callSign,
+      mailSubject,
+      risk,
+      changedSummary,
+      impacts,
+      action
+    }) {
+      const shipLabel = shipName
+        ? `${shipName}${callSign ? `(호출부호 ${callSign})` : ""}`
+        : "해당 선박";
+
+      const changesText = (changedSummary && changedSummary.length)
+        ? changedSummary.join(", ")
+        : "확인 가능한 변경 필드가 없습니다.";
+
+      const impactText = (impacts && impacts.length)
+        ? impacts
+            .map((item) => `${item.area} 측면에서는 ${item.message}`)
+            .join(" 또한 ")
+        : "현재까지 파악된 추가 업무 영향은 없습니다.";
+
+      const riskText = risk
+        ? `${risk.label}(${risk.score}/100) 수준`
+        : "평가 중";
+
+      const actionText = action
+        ? `${action.title}을(를) 권고드립니다. ${action.description || ""}`.trim()
+        : "";
+
+      const paragraphs = [
+        "담당자님, 안녕하세요.",
+        "물류 운영팀입니다.",
+        `${mailSubject ? `"${mailSubject}"` : "수신 메일"} 검토 결과를 다음과 같이 안내드립니다.`,
+        `${shipLabel}에 대해 ${changesText} 변경이 확인되었으며, 현재 위험도는 ${riskText}입니다.`,
+        `${impactText}.`,
+        actionText,
+        "승인해 주시면 운영 DB에 반영하고, 해외 파트너 회신 및 고객 납기 영향 공유까지 이어서 진행하겠습니다.",
+        "확인 부탁드립니다.",
+        "감사합니다.",
+        "물류 운영팀 드림",
+      ].filter((paragraph) => paragraph !== "");
+
+      return mdToPlainText(paragraphs.join("\n\n"), "message");
     }
 
     function aiModeMarkup(mode, purpose) {
@@ -924,11 +1088,11 @@
       const risk = support.risk;
       const modeChip = aiModeMarkup(support.analysis_mode, "위험·대응 분석");
       const aiError = support.ai_error ? `<div class="ai-error-note">AI 호출 실패: ${escapeHtml(support.ai_error)}</div>` : "";
-      const reasons = (risk.reasons || []).map((reason) => `<li>${escapeHtml(reason)}</li>`).join("");
+      const reasons = (risk.reasons || []).map((reason) => `<li>${mdToSafeHtml(reason)}</li>`).join("");
       const impacts = (support.impacts || []).map((impact) => `
         <div class="impact-item">
           <strong>${escapeHtml(impact.area)}</strong>
-          <span>${escapeHtml(impact.message)}</span>
+          <span>${mdToSafeHtml(impact.message)}</span>
         </div>
       `).join("");
       const radioName = `action-${String(card.case_id).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
@@ -984,13 +1148,13 @@
           <div class="package-grid">
             <article class="message-draft">
               <div class="message-draft__head">해외 파트너 영문 회신 <button type="button" class="copy-btn" data-copy="english">복사</button></div>
-              <div class="message-draft__subject">${escapeHtml(result.english_reply.subject)}</div>
-              <pre>${escapeHtml(result.english_reply.body)}</pre>
+              <div class="message-draft__subject">${mdToSafeHtml(result.english_reply.subject)}</div>
+              <pre>${mdToSafeHtml(result.english_reply.body)}</pre>
             </article>
             <article class="message-draft">
               <div class="message-draft__head">내부 보고용 한국어 요약 <button type="button" class="copy-btn" data-copy="korean">복사</button></div>
-              <div class="message-draft__subject">${escapeHtml(result.korean_report.title)}</div>
-              <pre>${escapeHtml(result.korean_report.body)}</pre>
+              <div class="message-draft__subject">${mdToSafeHtml(result.korean_report.title, "report")}</div>
+              <pre>${mdToSafeHtml(result.korean_report.body, "report")}</pre>
             </article>
           </div>
           <div class="handoff-bar">
@@ -1082,8 +1246,8 @@
             packageSlot.querySelectorAll(".copy-btn").forEach((copyBtn) => {
               copyBtn.addEventListener("click", async () => {
                 const target = copyBtn.dataset.copy === "english"
-                  ? `${result.english_reply.subject}\n\n${result.english_reply.body}`
-                  : `${result.korean_report.title}\n\n${result.korean_report.body}`;
+                  ? mdToPlainText(`${result.english_reply.subject}\n\n${result.english_reply.body}`, "message")
+                  : mdToPlainText(`${result.korean_report.title}\n\n${result.korean_report.body}`, "report");
                 await navigator.clipboard.writeText(target);
                 copyBtn.textContent = "복사됨";
               });
@@ -1091,6 +1255,15 @@
             const handoffBtn = packageSlot.querySelector(".handoff-btn");
             if (handoffBtn) {
               handoffBtn.addEventListener("click", () => {
+                const sentenceBody = buildSentenceKoreanReport({
+                  shipName: card.ship?.ship_name,
+                  callSign: card.ship?.call_sign,
+                  mailSubject: currentMailSubject,
+                  risk: card.decision_support.risk,
+                  changedSummary: card.decision_support.changed_summary,
+                  impacts: card.decision_support.impacts,
+                  action: result.selected_action,
+                });
                 const handoff = {
                   version: 1,
                   created_at: new Date().toISOString(),
@@ -1107,7 +1280,7 @@
                   analysis_engine: card.decision_support.engine,
                   selected_action: result.selected_action,
                   english_reply: result.english_reply,
-                  korean_report: result.korean_report,
+                  korean_report: { title: result.korean_report.title, body: sentenceBody },
                   generation_mode: result.generation_mode,
                 };
                 localStorage.setItem("clovis.communication.handoff.v1", JSON.stringify(handoff));

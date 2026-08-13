@@ -313,7 +313,7 @@
       const score = Math.round(checks.filter((item) => item.passed).length / checks.length * 100);
       $("#dispatch-score").textContent = `${score}%`;
       $("#dispatch-meter-bar").style.width = `${score}%`;
-      $("#dispatch-meter-bar").style.background = score === 100 ? "#159576" : "#e85c18";
+      $("#dispatch-meter-bar").style.background = score === 100 ? "#003478" : "#b8863a";
       $("#dispatch-checks").innerHTML = checks.map((item) => `<div class="dispatch-check ${item.passed ? "is-pass" : item.warn ? "is-warn" : ""}">${escapeHtml(item.label)}</div>`).join("");
       $("#dispatch-status").textContent = score === 100
         ? "발송 준비 완료 · 복사 또는 TXT 저장이 가능합니다."
